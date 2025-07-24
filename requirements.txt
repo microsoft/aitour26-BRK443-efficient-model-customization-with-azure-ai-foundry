@@ -1,2 +1,29 @@
 # Documentation
 mkdocs-material
+
+# Core libraries
+python-dotenv  # For loading environment variables from .env files
+
+# Data manipulation and visualization
+pandas  # For data manipulation and analysis
+matplotlib  # For creating visualizations
+numpy  # For numerical computations
+
+#MCP Server
+uv
+
+# Python Notebooks
+ipykernel
+
+## Demo 1: Basic Fine Tuning
+openai 
+requests 
+tiktoken 
+numpy
+
+## Demo 2: Distillation
+azure-identity # Azure Cognitive Services for model deployment
+azure-mgmt-cognitiveservices
+
+## Demo 3: RAFT
+
