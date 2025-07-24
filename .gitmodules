@@ -1,0 +1,3 @@
+[submodule "src/demo-raft/notebooks"]
+	path = src/demo-raft/notebooks
+	url = git@github.com:Azure-Samples/azureai-foundry-finetuning-raft.git
