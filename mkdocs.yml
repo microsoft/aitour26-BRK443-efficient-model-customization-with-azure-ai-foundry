@@ -1,40 +1,21 @@
 # -----------------------------
 # Material Theme Configuration
 # ------------------------------
-# red, pink, purple, deep purple, indigo, 
-# blue, light blue, cyan, teal, green, light green, 
-# lime, yellow, amber, orange, deep orange, brown, 
-# grey, blue grey , black, white
-#    primary: pink # teal
-#    accent: indigo
-#
-# *** FONT ***
-# Guide: https://squidfunk.github.io/mkdocs-material/setup/changing-the-fonts/?h=fonts
-# Google Fonts Supported: https://fonts.google.com/
-#
-# *** BLOG ***
-# https://squidfunk.github.io/mkdocs-material/setup/setting-up-a-blog/
-# ---------------------------------
-
-
 
 # Project information .........................................
-site_name: "Session Title"
+site_name: "AITOUR26: Breakout Session"
 site_url: 
-site_author: Content Creator
+site_author: Nitya Narasimhan & Cedric Vidal
 site_description: >-
-  Demo mkdocs for AI Tour Repos
+  Train The Trainer documentation for the AITOUR26 Session on Model Customization
 
 # Repository ..................................................
-repo_name: microsoft/AITour26-Repo-Template
-repo_url: https://github.com/microsoft/AITour26-Repo-Template
+repo_name: microsoft/aitour26-the-best-way-to-make-your-customized-models-smarter-without-more-data
+repo_url: https://github.com/microsoft/aitour26-the-best-way-to-make-your-customized-models-smarter-without-more-data
 
 # Copyright ...................................................
 copyright: >
   Copyright &copy; 2023 - present Microsoft
-
-extra_css:
-  - assets/extra.css  # Adjust path if needed
 
 # Configuration ...............................................
 theme:
@@ -86,6 +67,8 @@ theme:
     - content.tabs.link             # Ensures site-wide switch to same tab name
 
 # Extras  ...............................................
+extra_css:
+  - assets/extra.css  # Adjust path if needed
 extra:
   generator: false
 

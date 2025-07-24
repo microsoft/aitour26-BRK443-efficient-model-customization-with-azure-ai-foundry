@@ -1,51 +1,3 @@
-# Welcome AI Tour 26 Creators!
-
-Thanks for creating content for AI Tour 26.
-
-One of our opportunities from FY25 was make a more consistent experience for attendees.  Following this template, and keeping users in these repos, will help us achieve this opportunity for this year's AI Tour.
-
-Steps:
-
-## Docs using MKDocs
-If you are interested in using mkdocs, this repo is configured for it.
-1. update the `mkdocs.yml` file to reference your session. Look particularly for the `site_name`, `site_author`, and `repo_name` tags.
-1. Subfolders in the docs folder will show up as tabs in the navigation bar.
-
-If you want to disable mkdocs:
-1. Delete the mkdocs.yml file. 
-1. Delete the references to it in [docs/README.md](./docs/README.md)
-1. Delete the docs/assets folder and its contents.
-
-## Other folders
-Note the data, docs, src, lab, session-delivery-resources folders. 
-1. Remove folders that you dont need.
-1. Please keep and use the folders that you do need.  e.g. put your data in the data folder, and put your docs in the docs folder.
-
-## Update Readme
-1. Fill out the content below in this file, below the banner graphic.
-
-## Update Repo Info
-
-1. Note the data, docs, src, lab, session-delivery-resources folders. 
-
-    1. Remove folders that you dont need, but please keep and use the folders that you do need.  e.g. put your data in the data folder, and put your docs in the docs folder.
-
-1. Fill out the content below in this file, below the banner graphic.
-
-1. Update the Repo Info for this repo 
-    1. Click the gear icon⚙️ in the upper right.
-    1. Set a good description of this repo.
-    1. Add the technologies that you're using in this session.  E.g. the same items that are in the Technologies Used section below.
-
-1. Please embed links to Learn with your campaign codes!
-
-## Questions?
-Send them to Mike Kinsman, Erik Weis, and cc Anthony Bartolo.
-
-## Last step
-Delete this line and everything above it!
-
-
 <p align="center">
 <img src="img/Banner-MS-AI-Tour-26.png" alt="decorative banner" width="1200"/>
 </p>
@@ -58,28 +10,44 @@ If you will be delivering this session, check the [session-delivery-sources](./s
 
 ### Session Description
 
-*Add Session Description*
+You're building an enterprise retail chatbot but you need to customize the model with your data, and get high quality responses while keeping cost and complexity low. Do you use RAG, Fine-tuning - or both? Join us as we take you on a journey into Fine-Tuning with Azure AI Foundry and show you how support for lightweight processes, faster models, and the new developer tier, help streamline and simplify your end-to-end journey. Learn how fine-tuning approaches like Distillation can make your retail chatbot work on smaller, cheaper models. And how hybrid approaches like Retrieval Augmented Fine Tuning (RAFT) can help you improve the precision of your retail chatbot responses. Walk away with links to resources that you can explore for hands-on learning.
 
 
 ### 🧠 Learning Outcomes
 
-By the end of this session, learners will be able to:
+By the end of this session, you should be able to:
 
--  
--
--
+1. Describe what fine-tuning is, and the benefits it offers for customization
+1. Understand when to use different fine-tuning approaches, and why
+1. Know how Distillation works, and how it improves your cost-effectiveness
+1. Know how Retrieval-Augmented Fine Tuning works, and how it improves precision
+1. Build & evaluate a RAFT-based variant of an Azure AI Foundry model
+
 
 ### 💻 Technologies Used
 
-1.
-1.
-1.
+1. [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/quickstarts/get-started-code)
+1. [Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/overview/)
+1. [Distillation (Fine-Tuning)](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/stored-completions#distillation)
+1. [Reinforcement Fine-Tuning](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/reinforcement-fine-tuning)
+1. [RAFT (Retrieval Augmented Fine-Tuning)](https://github.com/Azure-Samples/azureai-foundry-finetuning-raft)
+1. [Azure AI Evaluation SDK](https://learn.microsoft.com/en-us/python/api/overview/azure/ai-evaluation-readme?view=azure-python)
+
+---
+
 
 ### 🔗 Session Resources
 | Resources          | Links                             | Description        |
 |:-------------------|:----------------------------------|:-------------------|
-| Additional Resources for this session | https://learn.microsoft.com | Links specific to this session |
+| Fine Tuning in Azure AI Foundry | https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/fine-tuning-overview | Comprehensive guide to fine-tuning models with training techniques and best practices |
+| Fine Tune OpenAI Models | https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/fine-tuning | Step-by-step guide to fine-tuning Azure OpenAI models using the studio and Python SDK |
+| Reinforcement Fine Tuning | https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/reinforcement-fine-tuning | Learn reinforcement fine-tuning (RFT) with o4-mini for complex reasoning tasks |
+| Stored Completions and Distillation | https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/stored-completions | Use stored completions to create fine-tuning datasets through distillation |
+| Safety Evaluation for Fine-Tuning | https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/fine-tuning-safety-evaluation | Automated safety evaluation for fine-tuned models to detect and prevent harmful content |
+| Azure OpenAI Graders | https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-evaluators/azure-openai-graders | Custom evaluation graders for model scoring, labeling, and text similarity assessment |
 
+---
+ 
 ### 📚 Continued Learning Resources
 | Resources          | Links                             | Description        |
 |:-------------------|:----------------------------------|:-------------------|
@@ -87,33 +55,28 @@ By the end of this session, learners will be able to:
 | Azure AI Foundry Community Discord | [![Microsoft Azure AI Foundry Discord](https://dcbadge.limes.pink/api/server/ByRwuEEgH4)](https://discord.com/invite/ByRwuEEgH4)| Connect with the Azure AI Foundry Community! |
 | Learn at AI Tour | https://aka.ms/LearnAtAITour | Continue learning on Microsoft Learn |
 
+---
+
 ### 🌐 Multi-Language Support
 
 *languages will go here when its time to localize*
 
+
+---
+
 ## Content Owners
-
-<!-- TODO: Add yourself as a content owner
-1. Change the src in the image tag to {your github url}.png
-2. Change INSERT NAME HERE to your name
-3. Change the github url in the final href to your url. -->
-
 
 <table>
 <tr>
-    <td align="center"><a href="http://github.com/mikekinsman">
-        <img src="https://github.com/mikekinsman.png" width="100px;" alt="INSERT NAME HERE"
-"/><br />
-        <sub><b> INSERT NAME HERE
-</b></sub></a><br />
-            <a href="https://github.com/mikekinsman" title="talk">📢</a> 
+    <td align="center"><a href="https://github.com/nitya">
+        <img src="https://github.com/nitya.png" width="100px;" alt="Nitya Narasimhan"/><br />
+        <sub><b>Nitya Narasimhan</b></sub></a><br />
+            <a href="https://github.com/nitya" title="talk">📢</a> 
     </td>
-    <td align="center"><a href="http://github.com/mikekinsman">
-        <img src="https://github.com/mikekinsman.png" width="100px;" alt="INSERT NAME HERE
-"/><br />
-        <sub><b>INSERT NAME HERE
-</b></sub></a><br />
-            <a href="https://github.com/mikekinsman" title="talk">📢</a> 
+    <td align="center"><a href="https://github.com/cedricvidal">
+        <img src="https://github.com/cedricvidal.png" width="100px;" alt="Cedric Vidal"/><br />
+        <sub><b>Cedric Vidal</b></sub></a><br />
+            <a href="https://github.com/cedricvidal" title="talk">📢</a> 
     </td>
 </tr></table>
 
