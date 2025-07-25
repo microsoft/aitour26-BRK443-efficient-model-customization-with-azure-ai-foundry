@@ -19,7 +19,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip3 install --user -r requirements.txt",
+	"postCreateCommand": "sh ${containerWorkspaceFolder}/.devcontainer/setup.sh",
 	"customizations": {
 		"vscode": {
 			"extensions": [
