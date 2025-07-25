@@ -1,8 +1,9 @@
 #!/bin/bash
 
 set -e
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-RAFT_DIR=${RAFT_DIR:-${PWD}/.gorilla}
+RAFT_DIR=${RAFT_DIR:-${SCRIPT_DIR}/.gorilla}
 echo "Setup Gorilla RAFT in ${RAFT_DIR}"
 if [ ! -d "${RAFT_DIR}" ]; then
     echo "Checking out the Gorilla RAFT repo"
