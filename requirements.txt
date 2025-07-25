@@ -5,9 +5,9 @@ mkdocs-material
 python-dotenv  # For loading environment variables from .env files
 
 # Data manipulation and visualization
+matplotlib==3.10.3  # For creating visualizations
+numpy==2.3.1  # For numerical computations
 pandas  # For data manipulation and analysis
-matplotlib  # For creating visualizations
-numpy  # For numerical computations
 
 #MCP Server
 uv
