@@ -19,7 +19,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "sh ${containerWorkspaceFolder}/.devcontainer/setup.sh",
+	"postCreateCommand": "bash ${containerWorkspaceFolder}/.devcontainer/setup.sh",
 	"customizations": {
 		"vscode": {
 			"extensions": [
