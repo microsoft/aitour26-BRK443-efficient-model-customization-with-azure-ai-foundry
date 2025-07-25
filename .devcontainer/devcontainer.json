@@ -7,7 +7,6 @@
 		"context": ".."
 	},
 	"features": {
-		"ghcr.io/devcontainers/features/python:1": {},
 		"ghcr.io/devcontainers/features/azure-cli:1": {},
 		"ghcr.io/azure/azure-dev/azd:0": {},
 		"ghcr.io/georgofenbeck/features/lazygit-linuxbinary:1": {}
@@ -37,7 +36,7 @@
 	},
 
 	"remoteEnv": {
-		"PATH": "${containerEnv:PATH}:src/demo-raft/notebooks/infra/scripts/"
+		"PATH": "${containerEnv:PATH}:/workspaces/aitour26-ft/src/demo-raft/notebooks/infra/scripts/"
 	}
 
 	// Configure tool-specific properties.
