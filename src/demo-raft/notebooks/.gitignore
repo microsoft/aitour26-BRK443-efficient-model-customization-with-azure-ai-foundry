@@ -1,0 +1,14 @@
+*.log
+.direnv
+dataset*
+.DS_Store
+config.json
+.env
+.gorilla/
+__pycache__
+.env.*
+work/
+.cache/
+litellm_config.yaml
+.ipynb_checkpoints/
+*.cast
