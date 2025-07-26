@@ -10,7 +10,9 @@ If you will be delivering this session, check the [session-delivery-sources](./s
 
 ### Session Description
 
-You're building an enterprise retail chatbot but you need to customize the model with your data, and get high quality responses while keeping cost and complexity low. Do you use RAG, Fine-tuning - or both? Join us as we take you on a journey into Fine-Tuning with Azure AI Foundry and show you how support for lightweight processes, faster models, and the new developer tier, help streamline and simplify your end-to-end journey. Learn how fine-tuning approaches like Distillation can make your retail chatbot work on smaller, cheaper models. And how hybrid approaches like Retrieval Augmented Fine Tuning (RAFT) can help you improve the precision of your retail chatbot responses. Walk away with links to resources that you can explore for hands-on learning.
+You're building an enterprise retail chatbot but you need to customize the model with your data, and get high quality responses while keeping cost and complexity low. Do you use RAG, Fine-tuning - or both? Join us as we take you on a journey into Fine-Tuning with Azure AI Foundry and show you how support for lightweight processes, faster models, and the new developer tier, help streamline and simplify your end-to-end journey. 
+
+Learn how fine-tuning approaches like Distillation can make your retail chatbot work on smaller, cheaper models. And how hybrid approaches like Retrieval Augmented Fine Tuning (RAFT) can help you improve the precision of your retail chatbot responses. Walk away with links to resources that you can explore for hands-on learning.
 
 
 ### 🧠 Learning Outcomes
@@ -19,9 +21,9 @@ By the end of this session, you should be able to:
 
 1. Describe what fine-tuning is, and the benefits it offers for customization
 1. Understand when to use different fine-tuning approaches, and why
-1. Know how Distillation works, and how it improves your cost-effectiveness
-1. Know how Retrieval-Augmented Fine Tuning works, and how it improves precision
-1. Build & evaluate a RAFT-based variant of an Azure AI Foundry model
+1. Understand the key value propositions for Distillation, RFT and RAFT
+1. Build & evaluate a RAFT-based solution to improve chatbot precision
+1. See how Azure AI Foundry streamlines & enhances your e2e fine-tuning journey
 
 
 ### 💻 Technologies Used
