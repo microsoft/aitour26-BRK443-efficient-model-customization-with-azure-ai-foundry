@@ -1,30 +1,26 @@
 # Documentation
 mkdocs-material
 
-# Core libraries
-python-dotenv  # For loading environment variables from .env files
+## Core libraries
+python-dotenv   # Environment variables
+ipykernel       # Jupyter Notebooks
+uv              # MCP Server
 
-# Data manipulation and visualization
+## Data manipulation and visualization
 matplotlib==3.10.3  # For creating visualizations
-numpy==2.3.1  # For numerical computations
-pandas  # For data manipulation and analysis
+numpy==2.3.1        # For numerical computations
+pandas              # For data manipulation and analysis
 
-#MCP Server
-uv
-
-# Python Notebooks
-ipykernel
-
-## Demo 1: Basic Fine Tuning
+## ..... Demo 1: Basic Fine Tuning 
 openai 
 requests 
 tiktoken 
 numpy
 
-## Demo 2: Distillation
-azure-identity # Azure Cognitive Services for model deployment
-azure-mgmt-cognitiveservices
+## ..... Demo 2: Distillation 
+azure-identity                 # For Azure authentication
+azure-mgmt-cognitiveservices   # For model deployment
 
-## Demo 3: RAFT
-
+## ..... Demo 3: RAFT
+## Installs dependencies for the RAFT demo
 -r src/demo-raft/notebooks/requirements.txt
