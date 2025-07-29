@@ -15,7 +15,6 @@ pandas              # For data manipulation and analysis
 openai 
 requests 
 tiktoken 
-numpy
 
 ## ..... Demo 2: Distillation 
 azure-identity                 # For Azure authentication
