@@ -4,36 +4,39 @@
 
 # [Microsoft AI Tour 2026](https://aitour.microsoft.com)
 
-## 🔥BRKXXX: The Best Way to Make Your Customized Models Smarter Without More Data
+## 🔥BRKXXX: Efficient Model Customization with Azure AI Foundry
 
 If you will be delivering this session, check the [session-delivery-sources](./session-delivery-resources/) folder for slides, scripts, and other resources.
 
 ### Session Description
 
-You're building an enterprise retail chatbot but you need to customize the model with your data, and get high quality responses while keeping cost and complexity low. Do you use RAG, Fine-tuning - or both? Join us as we take you on a journey into Fine-Tuning with Azure AI Foundry and show you how support for lightweight processes, faster models, and the new developer tier, help streamline and simplify your end-to-end journey. 
+_Scenario: <br/> 
+You are an AI developer building a multi-agent Shopping Assistant for an enterprise retail store selling home improvement goods to DIY enthuasiasts. Your want to deliver a good customer experience (polite & helpful chatbot) that also unlocks business value (clear inventory, grow sales, build loyalty) for the enterprise._
 
-Learn how fine-tuning approaches like Distillation can make your retail chatbot work on smaller, cheaper models. And how hybrid approaches like Retrieval Augmented Fine Tuning (RAFT) can help you improve the precision of your retail chatbot responses. Walk away with links to resources that you can explore for hands-on learning.
 
+Learn how to customize AI models and optimize their performance for your scenario through targeted fine-tuning methods. This session discusses Distillation, RFT and RAFT approaches using Azure AI Foundry, and shows how you can reduce costs and improve precision with less data and complexity.
 
 ### 🧠 Learning Outcomes
 
 By the end of this session, you should be able to:
 
-1. Describe what fine-tuning is, and the benefits it offers for customization
-1. Understand when to use different fine-tuning approaches, and why
-1. Understand the key value propositions for Distillation, RFT and RAFT
-1. Build & evaluate a RAFT-based solution to improve chatbot precision
-1. See how Azure AI Foundry streamlines & enhances your e2e fine-tuning journey
+1. Understand how model customization helps meet cost & performance objectives
+1. Know the model customization options (Prompt Engineering, RAG, Fine-Tuning)
+1. Explain how Fine-Tuning works, and its benefits & tradeoffs for customization
+1. Describe Fine-Tuning options available in Azure AI Foundry (SFT, RFT & more)
+1. Use Distillation (model compression) in Azure AI Foundry, to reduce cost
+1. Use RAFT (hybrid RAG + Fine Tuning) in Azure AI Foundry, to improve precision
+
+
 
 
 ### 💻 Technologies Used
 
-1. [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/quickstarts/get-started-code)
-1. [Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/overview/)
-1. [Distillation (Fine-Tuning)](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/stored-completions#distillation)
-1. [Reinforcement Fine-Tuning](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/reinforcement-fine-tuning)
-1. [RAFT (Retrieval Augmented Fine-Tuning)](https://github.com/Azure-Samples/azureai-foundry-finetuning-raft)
-1. [Azure AI Evaluation SDK](https://learn.microsoft.com/en-us/python/api/overview/azure/ai-evaluation-readme?view=azure-python)
+1. [Azure AI Foundry](https://learn.microsoft.com/azure/ai-foundry/what-is-azure-ai-foundry) - the unified Azure platform-as-a-service for enterprise AI.
+1. [Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/overview/) - provide API access to OpenAI models in Azure AI Foundry
+1. [Stored Completions & Distillation](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/stored-completions#distillation) - fine-tuning to achieve model (size) compression
+1. [Reinforcement Fine-Tuning](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/reinforcement-fine-tuning) - fine-tuning reasoning models with rewards-based approach
+1. [RAFT (Retrieval Augmented Fine-Tuning)](https://github.com/Azure-Samples/azureai-foundry-finetuning-raft) - Hybrid RAG+Fine-Tuning to improve precision
 
 ---
 
@@ -41,10 +44,9 @@ By the end of this session, you should be able to:
 ### 🔗 Session Resources
 | Resources          | Links                             | Description        |
 |:-------------------|:----------------------------------|:-------------------|
-| Fine Tuning in Azure AI Foundry | https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/fine-tuning-overview | Comprehensive guide to fine-tuning models with training techniques and best practices |
-| Fine Tune OpenAI Models | https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/fine-tuning | Step-by-step guide to fine-tuning Azure OpenAI models using the studio and Python SDK |
-| Reinforcement Fine Tuning | https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/reinforcement-fine-tuning | Learn reinforcement fine-tuning (RFT) with o4-mini for complex reasoning tasks |
-| Stored Completions and Distillation | https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/stored-completions | Use stored completions to create fine-tuning datasets through distillation |
+| Fine Tuning in Azure AI Foundry | https://learn.microsoft.com/azure/ai-foundry/concepts/fine-tuning-overview | Introduction to Fine Tuning concepts & tools in Azure AI Foundry|
+| Fine-tune a language model with Azure AI Foundry | https://learn.microsoft.com/en-us/training/modules/finetune-model-copilot-ai-studio/ |Step-by-step guide to fine-tuning models in Azure AI Foundry portal|
+| Reinforcement Fine Tuning | https://learn.microsoft.com/azure/ai-foundry/openai/how-to/reinforcement-fine-tuning | Rewards-based fine-tuning guide for o4-mini (reasoning model) |
 | Safety Evaluation for Fine-Tuning | https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/fine-tuning-safety-evaluation | Automated safety evaluation for fine-tuned models to detect and prevent harmful content |
 | Azure OpenAI Graders | https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-evaluators/azure-openai-graders | Custom evaluation graders for model scoring, labeling, and text similarity assessment |
 
