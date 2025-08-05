@@ -13,7 +13,6 @@ If you will be delivering this session, check the [session-delivery-sources](./s
 _Scenario: <br/> 
 You are an AI developer building a multi-agent Shopping Assistant for an enterprise retail store selling home improvement goods to DIY enthuasiasts. Your want to deliver a good customer experience (polite & helpful chatbot) that also unlocks business value (clear inventory, grow sales, build loyalty) for the enterprise._
 
-
 Learn how to customize AI models and optimize their performance for your scenario through targeted fine-tuning methods. This session discusses Distillation, RFT and RAFT approaches using Azure AI Foundry, and shows how you can reduce costs and improve precision with less data and complexity.
 
 ### 🧠 Learning Outcomes
@@ -26,8 +25,6 @@ By the end of this session, you should be able to:
 1. Describe Fine-Tuning options available in Azure AI Foundry (SFT, RFT & more)
 1. Use Distillation (model compression) in Azure AI Foundry, to reduce cost
 1. Use RAFT (hybrid RAG + Fine Tuning) in Azure AI Foundry, to improve precision
-
-
 
 
 ### 💻 Technologies Used
