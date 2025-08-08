@@ -1,22 +1,20 @@
-<p align="center">
-<img src="img/Banner-MS-AI-Tour-26.png" alt="decorative banner" width="1200"/>
-</p>
+![Banner](./assets/AITour-Banner.png)
 
-# [Microsoft AI Tour 2026](https://aitour.microsoft.com)
+# BRK443: Efficient Model Customization with Azure AI Foundry
 
-> Delivering this session? Check the [session-delivery-sources](./session-delivery-resources/) folder for resources & guidance.
-
-## 🔥BRK443: Efficient Model Customization with Azure AI Foundry
+> Delivering this session? Check [session-delivery-sources](./session-delivery-resources/) for guidance.
 
 
-### Session Description
+## Session Description
 
 You are an AI developer building a multi-agent AI solution for your enterprise retail store. You want to deliver a solution that is accurate, cost-effective, and performant. How do you select and optimize your model choice to deliver on these requirements? 
 
-In this session, we put the spotlight on model customization. Learn what your options are, and why _fine-tuning_ might be the right option for your scenario. Learn about the various fine-tuning options in Azure AI Foundry, and build your intuition for using techniques like Distillation (for reducing cost) and RAFT (for improving precision) with hands-on demos. Walk away with resources and insights that help you streamline your end-to-end model optimization journey with Azure AI Foundry.
+In this session, we put the spotlight on model customization. 
+
+Learn what your options are, and why _fine-tuning_ might be the right option for your scenario. Learn about the various fine-tuning options in Azure AI Foundry, and build your intuition for using techniques like Distillation (for reducing cost) and RAFT (for improving precision) with hands-on demos. Walk away with resources and insights that help you streamline your end-to-end model optimization journey with Azure AI Foundry.
 
 
-### 🧠 Learning Outcomes
+## Learning Outcomes
 
 By the end of this session, you should be able to:
 
@@ -27,7 +25,7 @@ By the end of this session, you should be able to:
 1. Use the RAFT technique to improve precision with hybrid RAG & Fine-Tuning
 1. Build and optimize your AI application seamlessly, with Azure AI Foundry
 
-### 💻 Technologies Used
+## Technologies Used
 
 1. [Azure AI Foundry](https://learn.microsoft.com/azure/ai-foundry/what-is-azure-ai-foundry) - the unified Azure platform-as-a-service for enterprise AI.
 1. [Azure OpenAI Service](https://learn.microsoft.com/azure/ai-foundry/openai/overview/) - provide API access to OpenAI models in Azure AI Foundry
@@ -35,10 +33,7 @@ By the end of this session, you should be able to:
 1. [Reinforcement Fine-Tuning](https://learn.microsoft.com/azure/ai-foundry/openai/how-to/reinforcement-fine-tuning) - fine-tuning reasoning models with rewards-based approach
 1. [RAFT (Retrieval Augmented Fine-Tuning)](https://github.com/Azure-Samples/azureai-foundry-finetuning-raft) - Hybrid RAG+Fine-Tuning to improve precision
 
----
-
-
-### 🔗 Session Resources
+## Session Resources
 | Resources          | Links                             | Description        |
 |:-------------------|:----------------------------------|:-------------------|
 | Fine Tuning in Azure AI Foundry | https://aka.ms/aitour/fine-tuning/documentation | Introduction to Fine Tuning concepts & tools in Azure AI Foundry|
@@ -60,12 +55,9 @@ By the end of this session, you should be able to:
 
 ---
 
-### 🌐 Multi-Language Support
+## Multi-Language Support
 
 *languages will go here when its time to localize*
-
-
----
 
 ## Content Owners
 
@@ -83,7 +75,6 @@ By the end of this session, you should be able to:
     </td>
 </tr></table>
 
-## 
 
 ## Responsible AI 
 

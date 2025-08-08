@@ -23,7 +23,7 @@ theme:
   font:
     code: Roboto Mono  #Monospaced
     text: Roboto       #Regular
-  logo: assets/AITour.png
+  logo: assets/AITour-Logo.png
   language: en
 
   # Theme Modes ...............................................
