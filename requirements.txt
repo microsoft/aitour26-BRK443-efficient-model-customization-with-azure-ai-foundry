@@ -11,6 +11,10 @@ matplotlib==3.10.3  # For creating visualizations
 numpy==2.3.1        # For numerical computations
 pandas              # For data manipulation and analysis
 
+## ..... Setup: Product Index
+azure-search-documents==11.5.3  # For Azure AI Search
+
+
 ## ..... Demo 1: Basic Fine Tuning 
 openai 
 requests 

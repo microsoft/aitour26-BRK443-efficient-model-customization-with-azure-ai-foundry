@@ -1,50 +1,48 @@
-<p align="center">
-<img src="../img/Banner-MS-AI-Tour-26.png" alt="decorative banner" width="1200"/>
-</p>
+![Banner](./assets/AITour-Banner.png)
 
-# [Microsoft AI Tour 2026](https://aitour.microsoft.com)
+# BRK443: Efficient Model Customization with Azure AI Foundry
 
-## 🔥BRKXXX: The Best Way to Make Your Customized Models Smarter Without More Data
-
-If you will be delivering this session, check the [session-delivery-sources](./session-delivery-resources/) folder for slides, scripts, and other resources.
-
-### Session Description
-
-You're building an enterprise retail chatbot but you need to customize the model with your data, and get high quality responses while keeping cost and complexity low. Do you use RAG, Fine-tuning - or both? Join us as we take you on a journey into Fine-Tuning with Azure AI Foundry and show you how support for lightweight processes, faster models, and the new developer tier, help streamline and simplify your end-to-end journey. Learn how fine-tuning approaches like Distillation can make your retail chatbot work on smaller, cheaper models. And how hybrid approaches like Retrieval Augmented Fine Tuning (RAFT) can help you improve the precision of your retail chatbot responses. Walk away with links to resources that you can explore for hands-on learning.
+> Delivering this session? Check [session-delivery-sources](./session-delivery-resources/) for guidance.
 
 
-### 🧠 Learning Outcomes
+## Session Description
+
+You are an AI developer building a multi-agent AI solution for your enterprise retail store. You want to deliver a solution that is accurate, cost-effective, and performant. How do you select and optimize your model choice to deliver on these requirements? 
+
+In this session, we put the spotlight on model customization. 
+
+Learn what your options are, and why _fine-tuning_ might be the right option for your scenario. Learn about the various fine-tuning options in Azure AI Foundry, and build your intuition for using techniques like Distillation (for reducing cost) and RAFT (for improving precision) with hands-on demos. Walk away with resources and insights that help you streamline your end-to-end model optimization journey with Azure AI Foundry.
+
+
+## Learning Outcomes
 
 By the end of this session, you should be able to:
 
-1. Describe what fine-tuning is, and the benefits it offers for customization
-1. Understand when to use different fine-tuning approaches, and why
-1. Know how Distillation works, and how it improves your cost-effectiveness
-1. Know how Retrieval-Augmented Fine Tuning works, and how it improves precision
-1. Build & evaluate a RAFT-based variant of an Azure AI Foundry model
+1. Describe what model customization is, and the different techniques involved
+1. Describe why fine-tuning matters, how it works, and when it is most applicable
+1. Describe the different fine-tuning options in Azure AI Foundry
+1. Use the Distillation technique to optimize costs with comparable accuracy
+1. Use the RAFT technique to improve precision with hybrid RAG & Fine-Tuning
+1. Build and optimize your AI application seamlessly, with Azure AI Foundry
 
+## Technologies Used
 
-### 💻 Technologies Used
+1. [Azure AI Foundry](https://learn.microsoft.com/azure/ai-foundry/what-is-azure-ai-foundry) - the unified Azure platform-as-a-service for enterprise AI.
+1. [Azure OpenAI Service](https://learn.microsoft.com/azure/ai-foundry/openai/overview/) - provide API access to OpenAI models in Azure AI Foundry
+1. [Stored Completions & Distillation](https://learn.microsoft.com/azure/ai-foundry/openai/how-to/stored-completions#distillation) - fine-tuning to achieve model (size) compression
+1. [Reinforcement Fine-Tuning](https://learn.microsoft.com/azure/ai-foundry/openai/how-to/reinforcement-fine-tuning) - fine-tuning reasoning models with rewards-based approach
+1. [RAFT (Retrieval Augmented Fine-Tuning)](https://github.com/Azure-Samples/azureai-foundry-finetuning-raft) - Hybrid RAG+Fine-Tuning to improve precision
 
-1. [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/quickstarts/get-started-code)
-1. [Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/overview/)
-1. [Distillation (Fine-Tuning)](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/stored-completions#distillation)
-1. [Reinforcement Fine-Tuning](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/reinforcement-fine-tuning)
-1. [RAFT (Retrieval Augmented Fine-Tuning)](https://github.com/Azure-Samples/azureai-foundry-finetuning-raft)
-1. [Azure AI Evaluation SDK](https://learn.microsoft.com/en-us/python/api/overview/azure/ai-evaluation-readme?view=azure-python)
-
----
-
-
-### 🔗 Session Resources
+## Session Resources
 | Resources          | Links                             | Description        |
 |:-------------------|:----------------------------------|:-------------------|
-| Fine Tuning in Azure AI Foundry | https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/fine-tuning-overview | Comprehensive guide to fine-tuning models with training techniques and best practices |
-| Fine Tune OpenAI Models | https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/fine-tuning | Step-by-step guide to fine-tuning Azure OpenAI models using the studio and Python SDK |
-| Reinforcement Fine Tuning | https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/reinforcement-fine-tuning | Learn reinforcement fine-tuning (RFT) with o4-mini for complex reasoning tasks |
-| Stored Completions and Distillation | https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/stored-completions | Use stored completions to create fine-tuning datasets through distillation |
-| Safety Evaluation for Fine-Tuning | https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/fine-tuning-safety-evaluation | Automated safety evaluation for fine-tuned models to detect and prevent harmful content |
-| Azure OpenAI Graders | https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-evaluators/azure-openai-graders | Custom evaluation graders for model scoring, labeling, and text similarity assessment |
+| Fine Tuning in Azure AI Foundry | https://aka.ms/aitour/fine-tuning/documentation | Introduction to Fine Tuning concepts & tools in Azure AI Foundry|
+| Fine-tuning samples from Azure AI Foundry | https://aka.ms/aitour/fine-tuning/foundry-samples | Evolving set of open-source code samples for developers |
+| Fine-tuning and distillation with Azure AI Foundry|https://aka.ms/aitour/fine-tuning/msbuild25-breakout | Microsoft Build 2025 Session on Model Customization |
+ Fine-tuning and Distillation | https://aka.ms/aitour/fine-tuning/model-mondays-video | Hands-on Distillation demo on Azure AI Foundry  |
+| Fine-tune a language model with Azure AI Foundry | https://aka.ms/aitour/fine-tuning/training-module | Microsoft Learn Training Module on Fine-Tuning |
+| Fine-tune pre-trained models to your business needs with Azure AI Foundry |https://aka.ms/aitour/fine-tuning/whitepaper | (Requires signup) Whitepaper covering challenges, benefits etc.  |
+| | | |
 
 ---
  
@@ -57,12 +55,9 @@ By the end of this session, you should be able to:
 
 ---
 
-### 🌐 Multi-Language Support
+## Multi-Language Support
 
 *languages will go here when its time to localize*
-
-
----
 
 ## Content Owners
 
@@ -80,7 +75,6 @@ By the end of this session, you should be able to:
     </td>
 </tr></table>
 
-## 
 
 ## Responsible AI 
 
