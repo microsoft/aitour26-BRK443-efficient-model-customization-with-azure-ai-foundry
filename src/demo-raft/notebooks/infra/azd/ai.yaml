@@ -16,27 +16,6 @@ deployments:
     regions:
       - westus3
       - northcentralus
-  - name: meta-llama-3-1-405B-chat
-    platform: serverless
-    roles:
-      - teacher
-    model:
-      api: chat
-      registry: azureml-meta
-      name: Meta-Llama-3.1-405B-Instruct
-    regions:
-      - westus3
-  - name: meta-llama-2-7b-chat
-    platform: serverless
-    roles:
-      - student
-      - baseline
-    model:
-      api: chat
-      registry: azureml-meta
-      name: Meta-Llama-3.1-8B-Instruct
-    regions:
-      - westus3
   - name: openai-gpt-4
     platform: openai
     roles:
@@ -69,35 +48,6 @@ deployments:
     regions:
       - northcentralus
       - westus3
-  - name: openai-gpt-4o
-    platform: openai
-    roles:
-      - teacher
-    model:
-      api: chat
-      format: OpenAI
-      name: gpt-4o
-      version: "2024-05-13"
-    sku:
-      name: "GlobalStandard"
-      capacity: 50
-    regions:
-      - northcentralus
-  - name: openai-gpt-4o-mini
-    platform: openai
-    roles:
-      - student
-      - baseline
-    model:
-      api: chat
-      format: OpenAI
-      name: gpt-4o-mini
-      version: "2024-07-18"
-    sku:
-      name: "GlobalStandard"
-      capacity: 8
-    regions:
-      - northcentralus
   - name: openai-gpt-4-1-mini
     platform: openai
     roles:
