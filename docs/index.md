@@ -46,7 +46,7 @@ By the end of this session, you should be able to:
 
 ---
  
-### 📚 Continued Learning Resources
+### Continue Learning 
 | Resources          | Links                             | Description        |
 |:-------------------|:----------------------------------|:-------------------|
 | AI Tour 2026 Resource Center | https://aka.ms/AITour26-Resource-center | Links to all repos for AI Tour 26 Sessions |
