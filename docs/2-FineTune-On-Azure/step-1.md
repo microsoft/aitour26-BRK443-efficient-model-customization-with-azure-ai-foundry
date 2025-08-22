@@ -1,4 +1,4 @@
-# Act 2: Try Model Customization
+# Step 1: Setup Infrastructure
 
 ## What is Azure AI Foundry?
 

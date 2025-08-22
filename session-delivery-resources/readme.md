@@ -42,7 +42,7 @@ Instead, we recommend the "Cooking demo" approach:
 
 The figure below shows a high-level view of the speaker deck sections. This is a 45-minute session with three demos that will take up most of the time, so pace yourself accordingly. **When necessary, prioritize demo time over slides**.
 
-![Speaker Deck](./../docs/assets/Speaker-Deck-v1.png)
+![Speaker Deck](./../docs/assets/Speaker-Deck.png)
 
 The talk is structured as four acts. Here is how we suggest you allocate time:
 
@@ -58,7 +58,7 @@ The table below gives a slighly more detailed breakdown - this is a recommended 
 |:---|:---|:---|:---|
 | 1 | 1 min | Welcome attendees · Introduce yourself and session topic | 3-4 |
 | 2 | 10 min  | Introduce Zava Scenario · Explain their model customization journey · How can Azure AI Foundry help Zava? | 5-11 |
-| 3 | 2 min  | Azure AI Foundry Fine-Tuning Options · Benefits to fine-tuning here | 12-15 |
+| 3 | 2 min  | Introduce fine-tuning options on Azure · Explain platform benefits | 12-15 |
 |  | 4 min  | How Basic Fine Tuning Works · Let's See The Demo  | 14, Play Recording |
 |  | 4 min  | How Distillation Works · Let's See The Demo  | 16, Play Recording |
 | 4 | 5 min  | What is Retrieval-Augemented Fine Tuning? | 18-23 |
