@@ -79,13 +79,19 @@ def reformat_quotes_with_citations(message: str, documents: list) -> str:
     # Pattern to match quotes
     pattern = r'##begin_quote##(.*?)##end_quote##'
     
+    def normalize_text(text):
+        """Normalize text by removing extra whitespace and newlines for comparison."""
+        return ' '.join(text.split())
+    
     def replace_quote(match):
         quote_text = match.group(1).strip()
+        normalized_quote = normalize_text(quote_text)
         
         # Find which document contains this quote
         citation_num = None
         for i, doc in enumerate(documents, 1):
-            if quote_text in doc:
+            normalized_doc = normalize_text(doc)
+            if normalized_quote in normalized_doc:
                 citation_num = i
                 break
         
