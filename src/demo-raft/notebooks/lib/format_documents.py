@@ -3,6 +3,28 @@
 import re
 
 
+def extract_documents(message: str) -> list:
+    """
+    Extract all documents from a message containing <DOCUMENT> tags.
+    
+    Args:
+        message: Message containing <DOCUMENT> tags
+        
+    Returns:
+        List of document contents (stripped of whitespace)
+    """
+    # Pattern to match document tags and their content
+    pattern = r'<DOCUMENT>(.*?)</DOCUMENT>'
+    
+    # Find all documents
+    documents = re.findall(pattern, message, re.DOTALL)
+    
+    # Clean up each document (remove extra whitespace)
+    cleaned_documents = [doc.strip() for doc in documents]
+    
+    return cleaned_documents
+
+
 def reformat_user_documents(message: str) -> str:
     """
     Reformat user message with <DOCUMENT> tags into numbered sources format.
@@ -41,6 +63,43 @@ def reformat_user_documents(message: str) -> str:
         formatted_lines.append(question)
     
     return '\n'.join(formatted_lines)
+
+
+def reformat_quotes_with_citations(message: str, documents: list) -> str:
+    """
+    Reformat quotes with ##begin_quote## and ##end_quote## markers to use backticks and citations.
+    
+    Args:
+        message: Message containing quote markers
+        documents: List of document strings to match quotes against
+        
+    Returns:
+        Reformatted message with quotes in backticks and citation numbers
+    """
+    # Pattern to match quotes
+    pattern = r'##begin_quote##(.*?)##end_quote##'
+    
+    def replace_quote(match):
+        quote_text = match.group(1).strip()
+        
+        # Find which document contains this quote
+        citation_num = None
+        for i, doc in enumerate(documents, 1):
+            if quote_text in doc:
+                citation_num = i
+                break
+        
+        # Format with backticks and citation
+        if citation_num:
+            return f'`{quote_text}` [{citation_num}]'
+        else:
+            # No matching document found, just format without citation
+            return f'`{quote_text}`'
+    
+    # Replace all quotes
+    reformatted = re.sub(pattern, replace_quote, message, flags=re.DOTALL)
+    
+    return reformatted
 
 
 # Example usage
