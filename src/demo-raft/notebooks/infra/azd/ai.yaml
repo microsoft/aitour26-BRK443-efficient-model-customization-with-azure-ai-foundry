@@ -12,10 +12,11 @@ deployments:
       version: "2"
     sku:
       name: "Standard"
-      capacity: 10
+      capacity: 100
     regions:
       - westus3
       - northcentralus
+      - swedencentral
   - name: openai-gpt-4
     platform: openai
     roles:
@@ -44,10 +45,11 @@ deployments:
       version: "2025-04-14"
     sku:
       name: "GlobalStandard"
-      capacity: 10
+      capacity: 50
     regions:
       - northcentralus
       - westus3
+      - swedencentral
   - name: openai-gpt-4-1-mini
     platform: openai
     roles:
@@ -64,6 +66,7 @@ deployments:
     regions:
       - northcentralus
       - westus3
+      - swedencentral
   - name: openai-gpt-4-1-nano
     platform: openai
     roles:
@@ -76,7 +79,8 @@ deployments:
       version: "2025-04-14"
     sku:
       name: "GlobalStandard"
-      capacity: 8
+      capacity: 50
     regions:
       - northcentralus
       - westus3
+      - swedencentral
