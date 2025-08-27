@@ -55,7 +55,7 @@ def reformat_user_documents(message: str) -> str:
     for i, doc in enumerate(documents, 1):
         # Clean up the document content (remove extra whitespace)
         cleaned_doc = doc.strip()
-        formatted_lines.append(f"[{i}] {cleaned_doc}")
+        formatted_lines.append(f"  - [{i}] {cleaned_doc}")
     
     # Add the question at the end
     if question:
