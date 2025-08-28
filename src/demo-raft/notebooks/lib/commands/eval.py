@@ -92,6 +92,132 @@ def create_experiment_paths(dataset_name: str) -> Dict[str, str]:
     return paths
 
 
+def validate_answer_file(file_path: str, model_type: str, verbose: bool = False) -> Dict[str, int]:
+    """
+    Validate model answer file for errors and expected fields.
+    
+    Args:
+        file_path: Path to the answer file
+        model_type: Type of model (baseline/student) for logging
+        verbose: Enable verbose logging
+        
+    Returns:
+        Dictionary with validation statistics
+    """
+    if not os.path.exists(file_path):
+        logger.warning(f"⚠️  Answer file not found: {file_path}")
+        return {"total": 0, "valid_answers": 0, "errors": 0, "missing_answer": 0}
+    
+    logger.info(f"🔍 Validating {model_type} answer file: {os.path.basename(file_path)}")
+    
+    stats = {
+        "total": 0,
+        "valid_answers": 0,
+        "errors": 0,
+        "missing_answer": 0,
+        "error_details": []
+    }
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            for line_num, line in enumerate(f, 1):
+                if not line.strip():
+                    continue
+                    
+                stats["total"] += 1
+                
+                try:
+                    data = json.loads(line.strip())
+                    
+                    # Check for error field
+                    if "error" in data:
+                        stats["errors"] += 1
+                        error_msg = data.get("error", "Unknown error")
+                        stats["error_details"].append(f"Line {line_num}: {error_msg}")
+                        if verbose:
+                            logger.debug(f"Error on line {line_num}: {error_msg}")
+                    
+                    # Check for answer field
+                    elif "answer" in data:
+                        stats["valid_answers"] += 1
+                    else:
+                        stats["missing_answer"] += 1
+                        if verbose:
+                            logger.debug(f"Missing answer field on line {line_num}")
+                            
+                except json.JSONDecodeError as e:
+                    stats["errors"] += 1
+                    error_msg = f"JSON decode error: {e}"
+                    stats["error_details"].append(f"Line {line_num}: {error_msg}")
+                    if verbose:
+                        logger.debug(f"JSON error on line {line_num}: {e}")
+    
+    except Exception as e:
+        logger.error(f"❌ Failed to validate answer file: {e}")
+        return stats
+    
+    # Log validation results
+    if stats["errors"] > 0:
+        logger.warning(f"⚠️  {model_type.title()} validation: {stats['errors']} errors found out of {stats['total']} lines")
+        if verbose:
+            for error_detail in stats["error_details"][:5]:  # Show first 5 errors
+                logger.warning(f"   • {error_detail}")
+            if len(stats["error_details"]) > 5:
+                logger.warning(f"   • ... and {len(stats['error_details']) - 5} more errors")
+    else:
+        logger.info(f"✅ {model_type.title()} validation: {stats['valid_answers']} valid answers, 0 errors")
+    
+    if stats["missing_answer"] > 0:
+        logger.warning(f"⚠️  {model_type.title()}: {stats['missing_answer']} lines missing answer field")
+    
+    return stats
+
+
+def display_validation_summary(baseline_stats: Dict[str, int], student_stats: Dict[str, int]):
+    """
+    Display a summary table of validation results.
+    
+    Args:
+        baseline_stats: Validation statistics for baseline model
+        student_stats: Validation statistics for student model
+    """
+    table = Table(title="📋 Answer File Validation Summary", show_header=True, header_style="bold blue")
+    table.add_column("Model", style="cyan")
+    table.add_column("Total Lines", style="white", justify="right")
+    table.add_column("Valid Answers", style="green", justify="right")
+    table.add_column("Errors", style="red", justify="right")
+    table.add_column("Missing Answer", style="yellow", justify="right")
+    table.add_column("Success Rate", style="magenta", justify="right")
+    
+    def calculate_success_rate(stats):
+        if stats["total"] == 0:
+            return "N/A"
+        return f"{(stats['valid_answers'] / stats['total']) * 100:.1f}%"
+    
+    # Add baseline row
+    table.add_row(
+        "Baseline",
+        str(baseline_stats["total"]),
+        str(baseline_stats["valid_answers"]),
+        str(baseline_stats["errors"]),
+        str(baseline_stats["missing_answer"]),
+        calculate_success_rate(baseline_stats)
+    )
+    
+    # Add student row
+    table.add_row(
+        "Student",
+        str(student_stats["total"]),
+        str(student_stats["valid_answers"]),
+        str(student_stats["errors"]),
+        str(student_stats["missing_answer"]),
+        calculate_success_rate(student_stats)
+    )
+    
+    console.print("\n")
+    console.print(table)
+
+
 def run_model_evaluation(
     eval_dataset_path: str,
     output_path: str, 
@@ -447,6 +573,9 @@ def eval(
         # Phase 1: Run model evaluations
         console.print("🔄 [bold]Phase 1: Running Model Evaluations[/bold]")
         
+        baseline_stats = {"total": 0, "valid_answers": 0, "errors": 0, "missing_answer": 0}
+        student_stats = {"total": 0, "valid_answers": 0, "errors": 0, "missing_answer": 0}
+        
         if not skip_baseline:
             if force_regenerate and os.path.exists(paths['baseline_answers']):
                 os.remove(paths['baseline_answers'])
@@ -461,6 +590,9 @@ def eval(
             )
             if not success:
                 raise click.ClickException("❌ Baseline model evaluation failed")
+            
+            # Validate baseline answers
+            baseline_stats = validate_answer_file(paths['baseline_answers'], 'baseline', verbose)
         
         if not skip_student:
             if force_regenerate and os.path.exists(paths['student_answers']):
@@ -476,6 +608,37 @@ def eval(
             )
             if not success:
                 raise click.ClickException("❌ Student model evaluation failed")
+            
+            # Validate student answers
+            student_stats = validate_answer_file(paths['student_answers'], 'student', verbose)
+        
+        # Display validation summary if both models were evaluated
+        if not skip_baseline and not skip_student:
+            display_validation_summary(baseline_stats, student_stats)
+            
+            # Check for significant error rates that might affect evaluation quality
+            baseline_error_rate = (baseline_stats["errors"] / baseline_stats["total"]) * 100 if baseline_stats["total"] > 0 else 0
+            student_error_rate = (student_stats["errors"] / student_stats["total"]) * 100 if student_stats["total"] > 0 else 0
+            
+            if baseline_error_rate > 10 or student_error_rate > 10:
+                console.print("\n⚠️  [bold yellow]Warning:[/bold yellow] High error rate detected!")
+                console.print("   High error rates may significantly impact evaluation results.")
+                console.print("   Consider reviewing model configurations or input data quality.")
+                
+                if baseline_error_rate > 10:
+                    console.print(f"   • Baseline error rate: {baseline_error_rate:.1f}%")
+                if student_error_rate > 10:
+                    console.print(f"   • Student error rate: {student_error_rate:.1f}%")
+        elif not skip_baseline:
+            # Display just baseline stats
+            baseline_error_rate = (baseline_stats["errors"] / baseline_stats["total"]) * 100 if baseline_stats["total"] > 0 else 0
+            if baseline_error_rate > 10:
+                console.print(f"\n⚠️  [bold yellow]Warning:[/bold yellow] Baseline model has {baseline_error_rate:.1f}% error rate")
+        elif not skip_student:
+            # Display just student stats  
+            student_error_rate = (student_stats["errors"] / student_stats["total"]) * 100 if student_stats["total"] > 0 else 0
+            if student_error_rate > 10:
+                console.print(f"\n⚠️  [bold yellow]Warning:[/bold yellow] Student model has {student_error_rate:.1f}% error rate")
         
         # Phase 2: Format answers
         console.print("\n🔄 [bold]Phase 2: Formatting Answers[/bold]")
