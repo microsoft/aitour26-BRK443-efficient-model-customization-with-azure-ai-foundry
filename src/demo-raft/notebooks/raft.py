@@ -14,6 +14,7 @@ from rich.logging import RichHandler
 
 from lib.commands.gen import gen
 from lib.commands.finetune import finetune
+from lib.commands.deploy import deploy
 
 # Configure Rich Click
 click.rich_click.USE_RICH_MARKUP = True
@@ -48,7 +49,8 @@ def cli(verbose):
     [bold yellow]Common Workflow:[/bold yellow]
     [dim]1.[/dim] [cyan]raft gen[/cyan] - Generate synthetic training datasets
     [dim]2.[/dim] [cyan]raft finetune[/cyan] - Fine-tune models with generated data
-    [dim]3.[/dim] [cyan]raft status[/cyan] - Monitor progress and results
+    [dim]3.[/dim] [cyan]raft deploy[/cyan] - Deploy fine-tuned models to Azure OpenAI
+    [dim]4.[/dim] [cyan]raft status[/cyan] - Monitor progress and results
     """
     if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -57,9 +59,10 @@ def cli(verbose):
     console.print("🤖 [bold blue]RAFT CLI Toolkit[/bold blue] - Retrieval Augmented Fine Tuning")
 
 
-# Add the gen and finetune commands
+# Add the commands
 cli.add_command(gen)
 cli.add_command(finetune)
+cli.add_command(deploy)
 
 
 @click.command()

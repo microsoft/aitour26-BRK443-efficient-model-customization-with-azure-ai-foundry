@@ -15,7 +15,7 @@ from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from rich.table import Table
 
-from lib.shared import setup_environment, console, logger
+from lib.shared import setup_environment, console, logger, create_azure_openai_client
 from utils import update_state
 
 
@@ -237,25 +237,8 @@ def finetune(
             console.print("\n💡 [bold]To start the actual fine-tuning job, run without --dry-run[/bold]")
             return
         
-        # Get Azure OpenAI endpoint
-        aoai_endpoint = os.getenv("FINETUNE_AZURE_OPENAI_ENDPOINT")
-        if not aoai_endpoint:
-            logger.error("❌ FINETUNE_AZURE_OPENAI_ENDPOINT not found in environment")
-            raise click.ClickException("Missing Azure OpenAI endpoint configuration")
-        
-        logger.info(f"🌐 Using Azure OpenAI endpoint: {aoai_endpoint}")
-        
         # Create Azure OpenAI client
-        logger.info("🔐 Authenticating with Azure")
-        azure_credential = DefaultAzureCredential()
-        
-        client = AzureOpenAI(
-            azure_endpoint=aoai_endpoint,
-            api_version="2024-05-01-preview",  # Required for fine-tuning features
-            azure_ad_token_provider=get_bearer_token_provider(
-                azure_credential, "https://cognitiveservices.azure.com/.default"
-            )
-        )
+        client = create_azure_openai_client()
         
         # Upload training files
         training_file_id, validation_file_id = upload_training_files(

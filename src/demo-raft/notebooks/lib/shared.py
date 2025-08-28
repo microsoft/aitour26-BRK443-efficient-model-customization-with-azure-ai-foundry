@@ -9,8 +9,10 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 import click
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from dotenv import load_dotenv
 from dotenv_azd import load_azd_env
+from openai import AzureOpenAI
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.text import Text
@@ -122,3 +124,31 @@ def setup_environment():
     load_dotenv(get_env_state_file())
     
     return True
+
+
+def create_azure_openai_client() -> AzureOpenAI:
+    """
+    Create and configure Azure OpenAI client with proper authentication.
+    
+    Returns:
+        Configured AzureOpenAI client instance
+        
+    Raises:
+        click.ClickException: If required environment variables are missing
+    """
+    aoai_endpoint = os.getenv("FINETUNE_AZURE_OPENAI_ENDPOINT")
+    if not aoai_endpoint:
+        raise click.ClickException("❌ FINETUNE_AZURE_OPENAI_ENDPOINT not found in environment")
+    
+    logger.info(f"🌐 Using Azure OpenAI endpoint: {aoai_endpoint}")
+    logger.info("🔐 Authenticating with Azure")
+    
+    azure_credential = DefaultAzureCredential()
+    
+    return AzureOpenAI(
+        azure_endpoint=aoai_endpoint,
+        api_version="2024-05-01-preview",  # Required for fine-tuning features
+        azure_ad_token_provider=get_bearer_token_provider(
+            azure_credential, "https://cognitiveservices.azure.com/.default"
+        )
+    )
