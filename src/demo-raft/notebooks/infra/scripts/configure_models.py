@@ -5,13 +5,14 @@ import rich_click as click
 import yaml
 from pathlib import Path
 from dotenv import load_dotenv
+from dotenv_azd import load_azd_env
 import subprocess
 from ai_config import *
 from dotenv_azd import load_azd_env
 
 load_azd_env()
 load_dotenv(".env")
-load_dotenv(".env.state")
+load_azd_env(quiet=True)
 
 
 def first(array):

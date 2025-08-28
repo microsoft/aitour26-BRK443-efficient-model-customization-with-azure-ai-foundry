@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from dotenv_azd import load_azd_env
 from os import getenv
 from azure.identity import DefaultAzureCredential
 from azure.identity import get_bearer_token_provider
@@ -6,7 +7,7 @@ from openai import AzureOpenAI
 from utils import create_client
 
 load_dotenv(".env")
-load_dotenv(".env.state")
+load_azd_env()
 
 def test_embeddings():
 
