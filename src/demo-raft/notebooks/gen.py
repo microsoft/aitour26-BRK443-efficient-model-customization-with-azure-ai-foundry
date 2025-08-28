@@ -23,6 +23,7 @@ from rich.console import Console
 from rich.logging import RichHandler
 from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
+from rich.text import Text
 
 from utils import get_env_state_file, update_state, get_pdf_image
 
@@ -67,6 +68,9 @@ def execute_command(
     env = os.environ.copy()
     if env_vars:
         env.update(env_vars)
+    # Ensure subprocess thinks it has a terminal for colored output
+    env['FORCE_COLOR'] = '1'
+    env['TERM'] = 'xterm-256color'
     
     try:
         process = subprocess.Popen(
@@ -91,8 +95,13 @@ def execute_command(
             if output:
                 line = output.rstrip()
                 stdout_lines.append(line)
-                # Display with visual distinction - indented and dimmed
-                console.print(f"    │ [dim]{line}[/dim]")
+                # Display with visual distinction - indented but preserve colors
+                # Use rich's Text object to handle ANSI codes properly
+                from rich.text import Text
+                colored_line = Text.from_ansi(line)
+                # Create indented version while preserving colors
+                console.print("    │ ", end="", style="dim")
+                console.print(colored_line, style="dim")
         
         # Wait for process to complete
         return_code = process.poll()
