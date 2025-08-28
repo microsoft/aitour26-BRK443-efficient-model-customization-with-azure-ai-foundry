@@ -210,11 +210,6 @@ def select_model_interactive(role: str, names: List[str], default: Optional[str]
     default_index = names.index(default) if default and default in names else 0
     console.print(f"\n🎯 Select a [bold cyan]{role}[/bold cyan] deployment:")
     
-    # Display options
-    for i, name in enumerate(names):
-        marker = "👉" if i == default_index else "   "
-        console.print(f"   {marker} [{i}] {name}")
-    
     try:
         index = survey.routines.select(
             f"Pick a {role} deployment name: ", 
@@ -336,6 +331,7 @@ def display_configuration_summary(selections: List[tuple], region: str):
 @click.option('--teacher-deployment', help='Teacher model deployment name')
 @click.option('--student-deployment', help='Student model deployment name') 
 @click.option('--judge-deployment', help='Judge model deployment name')
+@click.option('--baseline-deployment', help='Baseline model deployment name')
 @click.option('--embedding-deployment', help='Embedding model deployment name')
 @click.option('--non-interactive', is_flag=True, help='Use defaults without interactive selection')
 @click.option('--verbose', '-v', is_flag=True, help='Enable detailed logging output')
@@ -345,6 +341,7 @@ def configure(
     teacher_deployment: Optional[str],
     student_deployment: Optional[str],
     judge_deployment: Optional[str],
+    baseline_deployment: Optional[str],
     embedding_deployment: Optional[str],
     non_interactive: bool,
     verbose: bool
@@ -353,7 +350,7 @@ def configure(
     Configure AI models and deployments for [bold green]RAFT workflows[/bold green].
     
     This command reads the AI configuration and allows selection of specific
-    model deployments for different roles (teacher, student, judge, embedding).
+    model deployments for different roles (teacher, student, judge, baseline, embedding).
     Ensures platform consistency to comply with licensing constraints.
     
     [bold yellow]Process Overview:[/bold yellow]
@@ -400,6 +397,7 @@ def configure(
             'teacher': teacher_deployment,
             'student': student_deployment, 
             'judge': judge_deployment,
+            'baseline': baseline_deployment,
             'embedding': embedding_deployment
         }
         
