@@ -173,6 +173,55 @@ def validate_answer_file(file_path: str, model_type: str, verbose: bool = False)
     return stats
 
 
+def check_error_rates(
+    baseline_stats: Dict[str, int], 
+    student_stats: Dict[str, int], 
+    max_error_rate: float
+):
+    """
+    Check error rates and abort/warn if thresholds are exceeded.
+    
+    Args:
+        baseline_stats: Baseline model validation statistics
+        student_stats: Student model validation statistics  
+        max_error_rate: Maximum allowed error rate percentage
+        skip_baseline: Whether baseline evaluation was skipped
+        skip_student: Whether student evaluation was skipped
+    """
+    def calculate_error_rate(stats):
+        return (stats["errors"] / stats["total"]) * 100 if stats["total"] > 0 else 0
+    
+    def check_single_model_error_rate(stats, model_name, error_rate):
+        if error_rate > max_error_rate:
+            console.print(f"\n❌ [bold red]Evaluation Aborted![/bold red]")
+            console.print(f"   {model_name} model error rate ({error_rate:.1f}%) exceeds maximum allowed ({max_error_rate}%)")
+            console.print("   This would make evaluation results unreliable.")
+            console.print("\n🔧 [bold]Suggested Actions:[/bold]")
+            console.print(f"   • Check {model_name.lower()} model deployment and configuration")
+            console.print("   • Verify model endpoint is accessible and responding correctly")
+            console.print("   • Review input data format and quality")
+            console.print(f"   • Use --max-error-rate to increase threshold if errors are acceptable")
+            raise click.ClickException(f"{model_name} model error rate too high: {error_rate:.1f}%")
+        elif error_rate > 10:
+            console.print(f"\n⚠️  [bold yellow]Warning:[/bold yellow] {model_name} model has {error_rate:.1f}% error rate")
+    
+    # Calculate error rates
+    baseline_error_rate = calculate_error_rate(baseline_stats)
+    student_error_rate = calculate_error_rate(student_stats)
+    
+    # Check baseline model
+    check_single_model_error_rate(baseline_stats, "Baseline", baseline_error_rate)
+
+    # Check student model
+    check_single_model_error_rate(student_stats, "Student", student_error_rate)
+
+    # Display summary warning for both models if moderate error rates
+    if (baseline_error_rate > 10 or student_error_rate > 10):
+        if baseline_error_rate <= max_error_rate and student_error_rate <= max_error_rate:
+            console.print("   Error rates may impact evaluation result reliability.")
+            console.print("   Consider reviewing model configurations or input data quality.")
+
+
 def display_validation_summary(baseline_stats: Dict[str, int], student_stats: Dict[str, int]):
     """
     Display a summary table of validation results.
@@ -516,15 +565,17 @@ def display_metrics_comparison(
 
 @click.command()
 @click.option("--dataset-name", help="Dataset name to evaluate (defaults from state)")
-@click.option("--skip-baseline", is_flag=True, help="Skip baseline model evaluation")
-@click.option("--skip-student", is_flag=True, help="Skip student model evaluation") 
+@click.option("--skip-baseline", is_flag=True, help="Skip baseline model answer generation (requires existing answers)")
+@click.option("--skip-student", is_flag=True, help="Skip student model answer generation (requires existing answers)") 
 @click.option("--force-regenerate", is_flag=True, help="Force regenerate all evaluation files")
+@click.option("--max-error-rate", type=float, default=25.0, help="Maximum allowed error rate percentage (default: 25.0)")
 @click.option("--verbose", "-v", is_flag=True, help="Enable detailed logging output")
 def eval(
     dataset_name: Optional[str],
     skip_baseline: bool,
     skip_student: bool,
     force_regenerate: bool,
+    max_error_rate: float,
     verbose: bool
 ):
     """
@@ -570,11 +621,15 @@ def eval(
         if not os.path.exists(paths['dataset_eval']):
             raise click.ClickException(f"❌ Evaluation dataset not found: {paths['dataset_eval']}")
         
+        # Validate skip options - if user asks to skip, the answer file must exist
+        if skip_baseline and not os.path.exists(paths['baseline_answers']):
+            raise click.ClickException(f"❌ Cannot skip baseline evaluation: answer file doesn't exist ({paths['baseline_answers']}). Run baseline evaluation first or remove --skip-baseline.")
+        
+        if skip_student and not os.path.exists(paths['student_answers']):
+            raise click.ClickException(f"❌ Cannot skip student evaluation: answer file doesn't exist ({paths['student_answers']}). Run student evaluation first or remove --skip-student.")
+        
         # Phase 1: Run model evaluations
         console.print("🔄 [bold]Phase 1: Running Model Evaluations[/bold]")
-        
-        baseline_stats = {"total": 0, "valid_answers": 0, "errors": 0, "missing_answer": 0}
-        student_stats = {"total": 0, "valid_answers": 0, "errors": 0, "missing_answer": 0}
         
         if not skip_baseline:
             if force_regenerate and os.path.exists(paths['baseline_answers']):
@@ -590,10 +645,7 @@ def eval(
             )
             if not success:
                 raise click.ClickException("❌ Baseline model evaluation failed")
-            
-            # Validate baseline answers
-            baseline_stats = validate_answer_file(paths['baseline_answers'], 'baseline', verbose)
-        
+
         if not skip_student:
             if force_regenerate and os.path.exists(paths['student_answers']):
                 os.remove(paths['student_answers'])
@@ -608,37 +660,23 @@ def eval(
             )
             if not success:
                 raise click.ClickException("❌ Student model evaluation failed")
-            
-            # Validate student answers
-            student_stats = validate_answer_file(paths['student_answers'], 'student', verbose)
         
-        # Display validation summary if both models were evaluated
-        if not skip_baseline and not skip_student:
-            display_validation_summary(baseline_stats, student_stats)
-            
-            # Check for significant error rates that might affect evaluation quality
-            baseline_error_rate = (baseline_stats["errors"] / baseline_stats["total"]) * 100 if baseline_stats["total"] > 0 else 0
-            student_error_rate = (student_stats["errors"] / student_stats["total"]) * 100 if student_stats["total"] > 0 else 0
-            
-            if baseline_error_rate > 10 or student_error_rate > 10:
-                console.print("\n⚠️  [bold yellow]Warning:[/bold yellow] High error rate detected!")
-                console.print("   High error rates may significantly impact evaluation results.")
-                console.print("   Consider reviewing model configurations or input data quality.")
-                
-                if baseline_error_rate > 10:
-                    console.print(f"   • Baseline error rate: {baseline_error_rate:.1f}%")
-                if student_error_rate > 10:
-                    console.print(f"   • Student error rate: {student_error_rate:.1f}%")
-        elif not skip_baseline:
-            # Display just baseline stats
-            baseline_error_rate = (baseline_stats["errors"] / baseline_stats["total"]) * 100 if baseline_stats["total"] > 0 else 0
-            if baseline_error_rate > 10:
-                console.print(f"\n⚠️  [bold yellow]Warning:[/bold yellow] Baseline model has {baseline_error_rate:.1f}% error rate")
-        elif not skip_student:
-            # Display just student stats  
-            student_error_rate = (student_stats["errors"] / student_stats["total"]) * 100 if student_stats["total"] > 0 else 0
-            if student_error_rate > 10:
-                console.print(f"\n⚠️  [bold yellow]Warning:[/bold yellow] Student model has {student_error_rate:.1f}% error rate")
+        # Ensure answer files exist before proceeding
+        if not os.path.exists(paths['baseline_answers']):
+            raise click.ClickException(f"❌ Baseline answers file not found: {paths['baseline_answers']}")
+        
+        if not os.path.exists(paths['student_answers']):
+            raise click.ClickException(f"❌ Student answers file not found: {paths['student_answers']}")
+
+        # Always validate answer files (if they should exist)
+        baseline_stats = validate_answer_file(paths['baseline_answers'], 'baseline', verbose)
+        student_stats = validate_answer_file(paths['student_answers'], 'student', verbose)
+
+        # Display validation summary and check error rates
+        display_validation_summary(baseline_stats, student_stats)
+        
+        # Check error rates and abort if too high
+        check_error_rates(baseline_stats, student_stats, max_error_rate)
         
         # Phase 2: Format answers
         console.print("\n🔄 [bold]Phase 2: Formatting Answers[/bold]")
