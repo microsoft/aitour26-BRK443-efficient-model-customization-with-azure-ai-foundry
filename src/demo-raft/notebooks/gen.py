@@ -25,7 +25,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
 from rich.text import Text
 
-from utils import get_env_state_file, update_state, get_pdf_image
+from utils import get_env_state_file, update_state
 
 # Initialize Rich console
 console = Console()
@@ -184,18 +184,6 @@ def create_dataset_directory(ds_path: str):
     """Create dataset directory."""
     logger.info(f"📁 Creating dataset directory: {ds_path}")
     Path(ds_path).mkdir(parents=True, exist_ok=True)
-
-
-def display_pdf_overview(doc_path: str):
-    """Display PDF overview if the document is a PDF."""
-    if Path(doc_path).exists() and Path(doc_path).is_file() and Path(doc_path).suffix == ".pdf":
-        logger.info(f"📄 Processing PDF document: {doc_path}")
-        try:
-            pdf_image = get_pdf_image(doc_path)
-            if pdf_image:
-                logger.info("✅ PDF overview generated")
-        except Exception as e:
-            logger.warning(f"⚠️  Could not generate PDF overview: {e}")
 
 
 def run_raft_generation(
@@ -484,9 +472,6 @@ def main(
         
         # Create dataset directory
         create_dataset_directory(ds_path)
-        
-        # Display PDF overview
-        display_pdf_overview(doc_path)
         
         # Run RAFT generation
         run_raft_generation(
