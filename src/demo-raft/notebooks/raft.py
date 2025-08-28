@@ -8,12 +8,20 @@ operations including dataset generation, fine-tuning, and evaluation.
 
 import logging
 
-import click
+import rich_click as click
 from rich.console import Console
 from rich.logging import RichHandler
 
 from lib.commands.gen import gen
 from lib.commands.finetune import finetune
+
+# Configure Rich Click
+click.rich_click.USE_RICH_MARKUP = True
+click.rich_click.SHOW_ARGUMENTS = True
+click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
+click.rich_click.STYLE_ERRORS_SUGGESTION = "magenta italic"
+click.rich_click.ERRORS_SUGGESTION = "Try running the '--help' flag for more information."
+click.rich_click.ERRORS_EPILOGUE = "To find out more, visit https://github.com/microsoft/aitour26-BRK443"
 
 # Initialize Rich console
 console = Console()
@@ -32,10 +40,15 @@ logging.basicConfig(
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
 def cli(verbose):
     """
-    RAFT CLI - Retrieval Augmented Fine Tuning toolkit.
+    [bold blue]RAFT CLI[/bold blue] - [italic]Retrieval Augmented Fine Tuning toolkit[/italic]
     
     A comprehensive tool for generating synthetic datasets, fine-tuning models,
     and evaluating performance using the RAFT methodology with Azure AI services.
+    
+    [bold yellow]Common Workflow:[/bold yellow]
+    [dim]1.[/dim] [cyan]raft gen[/cyan] - Generate synthetic training datasets
+    [dim]2.[/dim] [cyan]raft finetune[/cyan] - Fine-tune models with generated data
+    [dim]3.[/dim] [cyan]raft status[/cyan] - Monitor progress and results
     """
     if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -51,7 +64,14 @@ cli.add_command(finetune)
 
 @click.command()
 def status():
-    """Show current RAFT project status and configuration."""
+    """
+    Show current RAFT project status and configuration.
+    
+    [dim]Displays information about:[/dim]
+    • Environment variables and Azure deployments
+    • Existing datasets and their status
+    • Recent operations and job statuses
+    """
     console.print("📊 [bold]RAFT Project Status[/bold]")
     
     # TODO: Implement status checking logic
@@ -65,7 +85,16 @@ def status():
 
 @click.command()
 def clean():
-    """Clean up generated datasets and temporary files."""
+    """
+    Clean up generated datasets and temporary files.
+    
+    [dim]This will remove:[/dim]
+    • Generated dataset directories
+    • Temporary processing files
+    • State files and cached data
+    
+    [bold red]Warning:[/bold red] This action cannot be undone!
+    """
     console.print("🧹 [bold]Cleaning RAFT workspace[/bold]")
     
     # TODO: Implement cleanup logic

@@ -13,7 +13,7 @@ from math import ceil
 from pathlib import Path
 from typing import Optional, Tuple
 
-import click
+import rich_click as click
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
@@ -303,20 +303,20 @@ def reformat_datasets(dataset_path_ft_train: str, dataset_path_ft_valid: str, ds
 
 
 @click.command()
-@click.option("--ds-name", default="zava-articles", help="Dataset name")
-@click.option("--doc-path", default="sample_data/zava-articles", help="Path to documents")
-@click.option("--format", "format_type", default="chat", help="Output format")
-@click.option("--train-split", default=0.8, help="Training split ratio")
-@click.option("--valid-split", default=0.1, help="Validation split ratio")
-@click.option("--finetuning-threshold", default=369, help="Minimum samples for fine-tuning")
-@click.option("--raft-questions", default=2, help="Number of questions per chunk")
+@click.option("--ds-name", default="zava-articles", help="Name for the generated dataset")
+@click.option("--doc-path", default="sample_data/zava-articles", help="Path to source documents")
+@click.option("--format", "format_type", default="chat", help="Output format for fine-tuning")
+@click.option("--train-split", default=0.8, help="Training data split ratio")
+@click.option("--valid-split", default=0.1, help="Validation data split ratio") 
+@click.option("--finetuning-threshold", default=369, help="Minimum samples required for fine-tuning")
+@click.option("--raft-questions", default=2, help="Number of questions generated per document chunk")
 @click.option("--citation-format", 
               type=click.Choice(['legacy-xml-tag', 'md-dash-list'], case_sensitive=False),
               default="legacy-xml-tag", 
-              help="Citation format: legacy-xml-tag (no reformatting) or md-dash-list (reformat)")
+              help="Citation format: [green]legacy-xml-tag[/green] (no reformatting) or [blue]md-dash-list[/blue] (reformat)")
 @click.option("--skip-setup", is_flag=True, help="Skip RAFT repository setup")
-@click.option("--skip-tests", is_flag=True, help="Skip infrastructure tests")
-@click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
+@click.option("--skip-tests", is_flag=True, help="Skip infrastructure endpoint tests")
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging output")
 def gen(
     ds_name: str,
     doc_path: str,
@@ -331,10 +331,20 @@ def gen(
     verbose: bool
 ):
     """
-    Generate synthetic datasets using RAFT (Retrieval Augmented Fine Tuning).
+    Generate synthetic datasets using [bold blue]RAFT[/bold blue] methodology.
     
-    This command uses Azure AI models to analyze documents and generate
-    question-answer datasets suitable for fine-tuning smaller models.
+    This command analyzes source documents and generates question-answer pairs
+    suitable for fine-tuning smaller language models. Uses Azure AI models
+    to create high-quality synthetic training data.
+    
+    [bold yellow]Process Overview:[/bold yellow]
+    [dim]1.[/dim] Setup RAFT repository and verify Azure endpoints
+    [dim]2.[/dim] Generate Q&A pairs from document chunks  
+    [dim]3.[/dim] Split data into training/validation/evaluation sets
+    [dim]4.[/dim] Export in fine-tuning compatible formats
+    
+    [bold green]Example:[/bold green]
+    [cyan]raft gen --ds-name my-dataset --raft-questions 3[/cyan]
     """
     # Configure logging level
     if verbose:
