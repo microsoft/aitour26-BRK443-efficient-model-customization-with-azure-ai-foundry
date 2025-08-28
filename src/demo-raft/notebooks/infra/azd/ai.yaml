@@ -50,6 +50,35 @@ deployments:
       - northcentralus
       - westus3
       - swedencentral
+  - name: openai-gpt-4o
+    platform: openai
+    roles:
+      - teacher
+    model:
+      api: chat
+      format: OpenAI
+      name: gpt-4o
+      version: "2024-05-13"
+    sku:
+      name: "GlobalStandard"
+      capacity: 1
+    regions:
+      - northcentralus
+  - name: openai-gpt-4o-mini
+    platform: openai
+    roles:
+      - student
+      - baseline
+    model:
+      api: chat
+      format: OpenAI
+      name: gpt-4o-mini
+      version: "2024-07-18"
+    sku:
+      name: "GlobalStandard"
+      capacity: 1
+    regions:
+      - northcentralus
   - name: openai-gpt-4-1-mini
     platform: openai
     roles:
