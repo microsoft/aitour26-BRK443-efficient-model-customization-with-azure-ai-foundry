@@ -17,7 +17,6 @@ from dotenv_azd import load_azd_env
 from rich.table import Table
 
 from lib.shared import setup_environment, console, logger
-from utils import update_state
 
 
 class Model:
@@ -456,11 +455,6 @@ def configure(
             console.print(f"\n🎉 Successfully configured {success_count}/{len(selections)} settings!")
         else:
             console.print("\n📋 [dim]Configuration complete (environment variables not set)[/dim]")
-        
-        # Update local state for other RAFT commands
-        logger.info("💾 Updating local state with configuration")
-        for name, value in selections:
-            update_state(name, value)
         
         console.print("\n🎯 [bold]Next Steps:[/bold]")
         console.print("   • Your model configuration is now ready for RAFT workflows")
