@@ -6,10 +6,10 @@ import yaml
 import json
 from pathlib import Path
 from dotenv import load_dotenv
+from dotenv_azd import load_azd_env
 import subprocess
 from itertools import groupby
 from ai_config import *
-from azd_utils import *
 
 def role_model_env_var_name(role):
     return f'{role.upper()}_MODEL_NAME'
@@ -50,9 +50,8 @@ def update_env_file(env_file, kv_tuples):
 @click.command()
 def export_proxy_endpoints():
 
-    load_azd_env()
+    load_azd_env(quiet=True)
     load_dotenv(".env")
-    load_dotenv(".env.state")
 
     config = read_ai_config()
     roles = get_roles(config.data)
