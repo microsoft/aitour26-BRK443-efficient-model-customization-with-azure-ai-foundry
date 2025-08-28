@@ -24,6 +24,18 @@ click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
 click.rich_click.STYLE_ERRORS_SUGGESTION = "magenta italic"
 click.rich_click.ERRORS_SUGGESTION = "Try running the '--help' flag for more information."
 click.rich_click.ERRORS_EPILOGUE = "To find out more, visit https://github.com/microsoft/aitour26-BRK443"
+click.rich_click.COMMAND_GROUPS = {
+    "raft.py": [
+        {
+            "name": "Workflow Commands",
+            "commands": ["configure", "gen", "finetune", "deploy"],
+        },
+        {
+            "name": "Utility Commands", 
+            "commands": ["status", "clean"],
+        },
+    ]
+}
 
 # Initialize Rich console
 console = Console()
