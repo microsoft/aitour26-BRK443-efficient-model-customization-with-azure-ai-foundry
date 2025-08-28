@@ -1,3 +1,6 @@
+import os
+
+
 def get_pdf_image(doc_path):
     """Converts a PDF document to an image."""
     from wand.image import Image as WImage
@@ -22,14 +25,19 @@ def update_env_file(env_file, key, value):
     if Path(env_file).exists() and Path(env_file).is_file():
         data = dotenv_values(env_file)
     data[key] = value
-    print(f"Updating state file with {key}={redact_secret(key, value)}")
+    print(f"Updating state file {env_file} with {key}={redact_secret(key, value)}")
     with open(env_file, "w") as f:
         for k, v in data.items():
             f.write(f"{k}={v}\n")
 
+def get_env_state_file():
+    """Get the .env.state file path."""
+    experiment = os.getenv("EXPERIMENT_NAME")
+    return f".env.state.{experiment}" if experiment else ".env.state"
+
 def update_state(key, value):
     """Update the .env.state state file with the key and value."""
-    update_env_file(".env.state", key, value)
+    update_env_file(get_env_state_file(), key, value)
 
 def redact_secret(key, value):
     """Redact a value from the logs if the key indicates that the value contains a keyword such as KEY or SECRET."""
