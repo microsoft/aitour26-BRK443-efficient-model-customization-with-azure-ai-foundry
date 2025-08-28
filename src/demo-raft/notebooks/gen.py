@@ -47,7 +47,7 @@ def execute_command(
     description: Optional[str] = None
 ) -> Tuple[int, str, str]:
     """
-    Execute a shell command and capture its output.
+    Execute a shell command and display real-time output.
     
     Args:
         command: The command to execute
@@ -69,26 +69,41 @@ def execute_command(
         env.update(env_vars)
     
     try:
-        result = subprocess.run(
+        process = subprocess.Popen(
             command,
             shell=True,
             cwd=cwd,
             env=env,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,  # Merge stderr into stdout
             text=True,
-            check=False
+            bufsize=1,  # Line buffered
+            universal_newlines=True
         )
         
-        if result.returncode == 0:
-            logger.info(f"✅ Command completed successfully")
-            if result.stdout.strip():
-                logger.debug(f"Output: {result.stdout.strip()}")
-        else:
-            logger.error(f"❌ Command failed with return code {result.returncode}")
-            if result.stderr.strip():
-                logger.error(f"Error: {result.stderr.strip()}")
+        stdout_lines = []
         
-        return result.returncode, result.stdout, result.stderr
+        # Read output line by line in real-time
+        while True:
+            output = process.stdout.readline()
+            if output == '' and process.poll() is not None:
+                break
+            if output:
+                line = output.rstrip()
+                stdout_lines.append(line)
+                # Display with visual distinction - indented and dimmed
+                console.print(f"    │ [dim]{line}[/dim]")
+        
+        # Wait for process to complete
+        return_code = process.poll()
+        stdout = '\n'.join(stdout_lines)
+        
+        if return_code == 0:
+            logger.info(f"✅ Command completed successfully")
+        else:
+            logger.error(f"❌ Command failed with return code {return_code}")
+        
+        return return_code, stdout, ""
         
     except Exception as e:
         logger.error(f"❌ Failed to execute command: {e}")
