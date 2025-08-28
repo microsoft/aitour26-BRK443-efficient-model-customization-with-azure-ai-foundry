@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 from typing import Optional, Union, Literal
 from dotenv import load_dotenv
+from dotenv_azd import load_azd_env
 
 
 def run_raft_generation(
@@ -34,7 +35,7 @@ def run_raft_generation(
     qa_threshold: Optional[int] = None,
     embedding_env_prefix: str = "EMBEDDING",
     completion_env_prefix: str = "COMPLETION",
-    env_files: list = [".env", ".env.state"],
+    env_files: list = [".env"],
     raft_script_path: str = ".gorilla/raft/raft.py"
 ) -> subprocess.CompletedProcess:
     """
@@ -183,7 +184,7 @@ def run_raft_from_notebook_params(
     """
     
     # Load environment variables to get deployment names if not provided
-    load_dotenv(".env.state")
+    load_azd_env(quiet=True)
     load_dotenv(".env")
     
     if not teacher_deployment_name:
