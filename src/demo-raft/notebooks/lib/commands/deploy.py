@@ -191,8 +191,11 @@ def create_model_deployment(
             raise click.ClickException(f"Failed to create deployment: {response.reason}")
         
         response_data = response.json()
-        logger.info(f"✅ Deployment request submitted successfully")
-        
+        if response.status_code == 200:
+            logger.info(f"✅ Deployment already exists")
+        else:
+            logger.info(f"✅ Deployment request submitted successfully")
+
         return {
             'url': request_url,
             'params': deploy_params,
@@ -387,10 +390,11 @@ def deploy(
         
         # Update state with deployment information
         logger.info("💾 Updating state with deployment information")
-        update_state("STUDENT_DEPLOYMENT_NAME", deployment_name)
-        update_state("STUDENT_AZURE_OPENAI_ENDPOINT", os.getenv("FINETUNE_AZURE_OPENAI_ENDPOINT"))
-        update_state("STUDENT_AZURE_OPENAI_DEPLOYMENT", deployment_name)
-        update_state("FINE_TUNED_MODEL_NAME", fine_tuned_model)
+        update_state("FINETUNE_DEPLOYMENT_NAME", deployment_name)
+        update_state("FINETUNE_AZURE_OPENAI_ENDPOINT", os.getenv("FINETUNE_AZURE_OPENAI_ENDPOINT"))
+        update_state("FINETUNE_AZURE_OPENAI_DEPLOYMENT", deployment_name)
+        update_state("FINETUNE_MODEL_NAME", fine_tuned_model)
+        update_state("FINETUNE_MODEL_API", os.getenv("STUDENT_MODEL_API"))
         
         # Display summary
         console.print("\n✅ [bold green]Deployment Created Successfully![/bold green]\n")

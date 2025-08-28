@@ -34,8 +34,8 @@ def setup_eval_environment() -> Dict[str, str]:
     required_vars = {
         'BASELINE_DEPLOYMENT_NAME': 'Baseline model deployment name',
         'BASELINE_MODEL_API': 'Baseline model API type',
-        'STUDENT_DEPLOYMENT_NAME': 'Student model deployment name', 
-        'STUDENT_MODEL_API': 'Student model API type',
+        'FINETUNE_DEPLOYMENT_NAME': 'Fine-tuned model deployment name',
+        'FINETUNE_MODEL_API': 'Fine-tuned model API type',
         'DATASET_NAME': 'Dataset name for evaluation'
     }
     
@@ -57,7 +57,7 @@ def setup_eval_environment() -> Dict[str, str]:
     
     logger.info(f"✅ Environment configured for evaluation")
     logger.info(f"   • Baseline: {config['BASELINE_MODEL_API']} model {config['BASELINE_DEPLOYMENT_NAME']}")
-    logger.info(f"   • Student: {config['STUDENT_MODEL_API']} model {config['STUDENT_DEPLOYMENT_NAME']}")
+    logger.info(f"   • Fine-tuned: {config['FINETUNE_MODEL_API']} model {config['FINETUNE_DEPLOYMENT_NAME']}")
     logger.info(f"   • Dataset: {config['DATASET_NAME']}")
     
     return config
@@ -657,9 +657,9 @@ def eval(
             success = run_model_evaluation(
                 paths['dataset_eval'],
                 paths['student_answers'], 
-                config['STUDENT_DEPLOYMENT_NAME'],
-                'STUDENT',
-                config['STUDENT_MODEL_API'],
+                config['FINETUNE_DEPLOYMENT_NAME'],
+                'FINETUNE',
+                config['FINETUNE_MODEL_API'],
                 verbose
             )
             if not success:
