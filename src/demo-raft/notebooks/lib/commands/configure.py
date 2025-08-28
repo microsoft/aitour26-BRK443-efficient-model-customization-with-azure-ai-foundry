@@ -148,6 +148,29 @@ def filter_provider_transfer_compliant_models(deployment: dict, role: str, selec
     return True
 
 
+def get_finetuning_sku_name(ai_config_data: dict, deployment_name: str) -> Optional[str]:
+    """Extract the finetuning SKU name for a specific deployment from the AI configuration."""
+    deployments = ai_config_data.get('deployments', [])
+    
+    for deployment in deployments:
+        if deployment.get('name') == deployment_name:
+            finetuning_config = deployment.get('finetuning')
+            if finetuning_config and isinstance(finetuning_config, list):
+                for ft_config in finetuning_config:
+                    sku_config = ft_config.get('sku')
+                    if sku_config and isinstance(sku_config, list):
+                        for sku in sku_config:
+                            if isinstance(sku, dict) and 'name' in sku:
+                                return sku['name']
+    
+    return None
+
+
+def role_finetuning_sku_env_var_name(role: str) -> str:
+    """Generate environment variable name for a role's finetuning SKU."""
+    return f'{role.upper()}_FINETUNING_SKU_NAME'
+
+
 def get_deployment_names(
     ai_config_data: dict, 
     regions: Set[str], 
@@ -282,15 +305,25 @@ def display_configuration_summary(selections: List[tuple], region: str):
     
     # Group by role for better readability
     roles_shown = set()
+    azure_location = None
+    
     for name, value in selections:
         if "_DEPLOYMENT_NAME" in name:
             role = name.replace("_DEPLOYMENT_NAME", "").lower()
             if role not in roles_shown:
                 table.add_row(f"{role.title()} Role", "")
                 roles_shown.add(role)
-        table.add_row(f"  {name}", value)
+        
+        # Handle special cases
+        if name == "AZURE_LOCATION":
+            azure_location = value
+        else:
+            table.add_row(f"  {name}", value)
     
-    table.add_row("Region", region)
+    # Add region at the end
+    if azure_location:
+        table.add_row("Region", azure_location)
+    
     console.print("\n")
     console.print(table)
 
@@ -413,11 +446,19 @@ def configure(
                 selected_platforms[role] = platform
             
             # Store selections
-            selections.extend([
+            role_selections = [
                 (role_deployment_env_var_name(role), selected_deployment),
                 (role_model_env_var_name(role), descriptor.model.name),
                 (role_model_api_env_var_name(role), descriptor.model.api)
-            ])
+            ]
+            
+            # Check for finetuning SKU for this specific deployment
+            finetuning_sku = get_finetuning_sku_name(ai_config.data, selected_deployment)
+            if finetuning_sku:
+                role_selections.append((role_finetuning_sku_env_var_name(role), finetuning_sku))
+                logger.info(f"✅ Found finetuning SKU for {role}: {finetuning_sku}")
+            
+            selections.extend(role_selections)
             
             logger.info(f"✅ Selected {role}: {selected_deployment} ({descriptor.model.name})")
         

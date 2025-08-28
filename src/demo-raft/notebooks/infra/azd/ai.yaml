@@ -96,6 +96,9 @@ deployments:
       - northcentralus
       - westus3
       - swedencentral
+    finetuning:
+      - sku:
+        - name: "developertier"
   - name: openai-gpt-4-1-nano
     platform: openai
     roles:
@@ -113,3 +116,6 @@ deployments:
       - northcentralus
       - westus3
       - swedencentral
+    finetuning:
+      - sku:
+        - name: "developertier"
