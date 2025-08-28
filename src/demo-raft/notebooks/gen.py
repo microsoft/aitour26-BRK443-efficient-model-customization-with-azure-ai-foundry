@@ -99,9 +99,13 @@ def execute_command(
                 # Use rich's Text object to handle ANSI codes properly
                 from rich.text import Text
                 colored_line = Text.from_ansi(line)
-                # Create indented version while preserving colors
-                console.print("    │ ", end="", style="dim")
-                console.print(colored_line, style="dim")
+                # Create the complete indented line with styling
+                indent_text = Text("    │ ", style="dim")
+                # Apply dim style to the colored line while preserving original colors
+                colored_line.stylize("dim")
+                # Combine indent and content in a single Text object
+                full_line = indent_text + colored_line
+                console.print(full_line)
         
         # Wait for process to complete
         return_code = process.poll()
