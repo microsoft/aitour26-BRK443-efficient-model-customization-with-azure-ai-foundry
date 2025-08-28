@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
 """
-RAFT Dataset Generator CLI
+RAFT Dataset Generation Command
 
-A command-line tool for generating synthetic datasets using RAFT (Retrieval Augmented Fine Tuning)
-methodology with Azure AI models.
+Command for generating synthetic datasets using RAFT methodology.
 """
 
 import json
@@ -32,12 +30,6 @@ console = Console()
 
 # Configure logging with Rich
 import logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-    datefmt="[%X]",
-    handlers=[RichHandler(console=console, rich_tracebacks=True)]
-)
 logger = logging.getLogger("raft_gen")
 
 
@@ -421,7 +413,7 @@ def reformat_datasets(dataset_path_ft_train: str, dataset_path_ft_valid: str, ds
 @click.option("--skip-setup", is_flag=True, help="Skip RAFT repository setup")
 @click.option("--skip-tests", is_flag=True, help="Skip infrastructure tests")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
-def main(
+def gen(
     ds_name: str,
     doc_path: str,
     format_type: str,
@@ -437,7 +429,7 @@ def main(
     """
     Generate synthetic datasets using RAFT (Retrieval Augmented Fine Tuning).
     
-    This tool uses Azure AI models to analyze documents and generate
+    This command uses Azure AI models to analyze documents and generate
     question-answer datasets suitable for fine-tuning smaller models.
     """
     # Configure logging level
@@ -552,7 +544,3 @@ def main(
         if verbose:
             console.print_exception()
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
