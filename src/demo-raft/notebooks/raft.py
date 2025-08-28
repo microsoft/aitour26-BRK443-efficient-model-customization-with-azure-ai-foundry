@@ -16,6 +16,7 @@ from lib.commands.gen import gen
 from lib.commands.finetune import finetune
 from lib.commands.deploy import deploy
 from lib.commands.configure import configure
+from lib.commands.eval import eval
 
 # Configure Rich Click
 click.rich_click.USE_RICH_MARKUP = True
@@ -28,7 +29,7 @@ click.rich_click.COMMAND_GROUPS = {
     "raft.py": [
         {
             "name": "Workflow Commands",
-            "commands": ["configure", "gen", "finetune", "deploy"],
+            "commands": ["configure", "gen", "finetune", "deploy", "eval"],
         },
         {
             "name": "Utility Commands", 
@@ -64,7 +65,8 @@ def cli(verbose):
     [dim]2.[/dim] [cyan]raft gen[/cyan] - Generate synthetic training datasets
     [dim]3.[/dim] [cyan]raft finetune[/cyan] - Fine-tune models with generated data
     [dim]4.[/dim] [cyan]raft deploy[/cyan] - Deploy fine-tuned models to Azure OpenAI
-    [dim]5.[/dim] [cyan]raft status[/cyan] - Monitor progress and results
+    [dim]5.[/dim] [cyan]raft eval[/cyan] - Evaluate model performance and compare results
+    [dim]6.[/dim] [cyan]raft status[/cyan] - Monitor progress and results
     """
     if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -78,6 +80,7 @@ cli.add_command(configure)
 cli.add_command(gen)
 cli.add_command(finetune)
 cli.add_command(deploy)
+cli.add_command(eval)
 
 
 @click.command()
