@@ -95,6 +95,7 @@ def create_model_deployment(
     fine_tuned_model: str,
     deployment_name: str,
     capacity: int = 4,
+    finetuning_sku: Optional[str] = None,
     verbose: bool = False
 ) -> dict:
     """
@@ -105,6 +106,7 @@ def create_model_deployment(
         deployment_name: Name for the deployment
         capacity: Deployment capacity
         verbose: Enable verbose logging
+        finetuning_sku: Override finetuning SKU (optional)
         
     Returns:
         Deployment response dictionary
@@ -118,6 +120,24 @@ def create_model_deployment(
     subscription = os.getenv("AZURE_SUBSCRIPTION_ID")
     resource_group = os.getenv("AZURE_RESOURCE_GROUP")
     aoai_endpoint = os.getenv("FINETUNE_AZURE_OPENAI_ENDPOINT")
+    
+    # Determine finetuning SKU from parameter or environment
+    if finetuning_sku:
+        # Use explicitly provided SKU
+        sku_name = finetuning_sku
+        sku_source = "parameter"
+    else:
+        # Check for student role finetuning SKU from environment
+        sku_name = os.getenv("STUDENT_FINETUNING_SKU_NAME")
+        if sku_name:
+            sku_source = "environment (STUDENT_FINETUNING_SKU_NAME)"
+        else:
+            # Fall back to GlobalStandard
+            sku_name = "GlobalStandard"
+            sku_source = "default fallback"
+    
+    if verbose:
+        logger.debug(f"🔧 Using finetuning SKU: {sku_name} (from {sku_source})")
     
     if not all([subscription, resource_group, aoai_endpoint]):
         missing = []
@@ -136,7 +156,7 @@ def create_model_deployment(
     }
     
     deploy_data = {
-        "sku": {"name": "developertier", "capacity": capacity},
+        "sku": {"name": sku_name, "capacity": capacity},
         "properties": {
             "model": {
                 "format": "OpenAI",
@@ -275,6 +295,7 @@ def display_deployment_summary(deployment_name: str, model_name: str, endpoint: 
 @click.option("--job-id", help="Fine-tuning job ID (defaults from state)")
 @click.option("--deployment-name", help="Custom deployment name (auto-generated if not provided)")
 @click.option("--capacity", default=4, help="Deployment capacity (TPM quota)")
+@click.option("--finetuning-sku", help="Override finetuning SKU (defaults to STUDENT_FINETUNING_SKU_NAME from environment)")
 @click.option("--skip-monitoring", is_flag=True, help="Skip fine-tuning job monitoring")
 @click.option("--model-name", help="Fine-tuned model name (if job monitoring is skipped)")
 @click.option("--verbose", "-v", is_flag=True, help="Enable detailed logging output")
@@ -282,6 +303,7 @@ def deploy(
     job_id: Optional[str],
     deployment_name: Optional[str],
     capacity: int,
+    finetuning_sku: Optional[str],
     skip_monitoring: bool,
     model_name: Optional[str],
     verbose: bool
@@ -344,7 +366,11 @@ def deploy(
         
         # Create deployment
         deployment_info = create_model_deployment(
-            fine_tuned_model, deployment_name, capacity, verbose
+            fine_tuned_model, 
+            deployment_name, 
+            capacity, 
+            finetuning_sku, 
+            verbose
         )
         
         # Monitor deployment status
