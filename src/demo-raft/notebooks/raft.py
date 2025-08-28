@@ -15,6 +15,7 @@ from rich.logging import RichHandler
 from lib.commands.gen import gen
 from lib.commands.finetune import finetune
 from lib.commands.deploy import deploy
+from lib.commands.configure import configure
 
 # Configure Rich Click
 click.rich_click.USE_RICH_MARKUP = True
@@ -47,10 +48,11 @@ def cli(verbose):
     and evaluating performance using the RAFT methodology with Azure AI services.
     
     [bold yellow]Common Workflow:[/bold yellow]
-    [dim]1.[/dim] [cyan]raft gen[/cyan] - Generate synthetic training datasets
-    [dim]2.[/dim] [cyan]raft finetune[/cyan] - Fine-tune models with generated data
-    [dim]3.[/dim] [cyan]raft deploy[/cyan] - Deploy fine-tuned models to Azure OpenAI
-    [dim]4.[/dim] [cyan]raft status[/cyan] - Monitor progress and results
+    [dim]1.[/dim] [cyan]raft configure[/cyan] - Configure AI models and deployments
+    [dim]2.[/dim] [cyan]raft gen[/cyan] - Generate synthetic training datasets
+    [dim]3.[/dim] [cyan]raft finetune[/cyan] - Fine-tune models with generated data
+    [dim]4.[/dim] [cyan]raft deploy[/cyan] - Deploy fine-tuned models to Azure OpenAI
+    [dim]5.[/dim] [cyan]raft status[/cyan] - Monitor progress and results
     """
     if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -60,6 +62,7 @@ def cli(verbose):
 
 
 # Add the commands
+cli.add_command(configure)
 cli.add_command(gen)
 cli.add_command(finetune)
 cli.add_command(deploy)
