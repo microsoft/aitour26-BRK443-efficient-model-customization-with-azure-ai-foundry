@@ -1,5 +1,7 @@
 import os
 
+from dotenv import dotenv_values
+
 
 def get_pdf_image(doc_path):
     """Converts a PDF document to an image."""
@@ -34,6 +36,12 @@ def get_env_state_file():
     """Get the .env.state file path."""
     experiment = os.getenv("EXPERIMENT_NAME")
     return f".env.state.{experiment}" if experiment else ".env.state"
+
+def get_state_env():
+    state_file = get_env_state_file()
+    if not os.path.exists(state_file):
+        raise FileNotFoundError(f"State file not found: {state_file}")
+    return dotenv_values(state_file)
 
 def update_state(key, value):
     """Update the .env.state state file with the key and value."""

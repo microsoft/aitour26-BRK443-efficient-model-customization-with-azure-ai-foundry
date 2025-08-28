@@ -18,7 +18,7 @@ from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 from rich.console import Console
 
 from lib.shared import setup_environment, console, logger, execute_command
-from utils import get_env_state_file, update_state
+from utils import get_env_state_file, get_state_env, update_state
 
 
 def setup_eval_environment() -> Dict[str, str]:
@@ -299,9 +299,12 @@ def run_model_evaluation(
     azure_env_file = f".azure/{azure_env_name}/.env" if azure_env_name else ""
     
     # Build environment command
-    env_files = [f for f in [".env", env_state_file, azure_env_file] if f and os.path.exists(f)]
-    env_command = f"env $(cat {' '.join(env_files)})" if env_files else ""
-    
+    #env_files = [f for f in [env_state_file] if f and os.path.exists(f)]
+    #env_command = f"env $(cat {' '.join(env_files)})" if env_files else ""
+
+    # Creating environment
+    env = get_state_env()
+
     # Build evaluation command
     eval_command = [
         "python", ".gorilla/raft/eval.py",
@@ -311,16 +314,17 @@ def run_model_evaluation(
         "--env-prefix", env_prefix,
         "--mode", model_api
     ]
-    
-    command = f"{env_command} {' '.join(eval_command)}"
-    
+
+    command = ' '.join(eval_command)
+
     logger.info(f"🔄 Running {env_prefix.lower()} model evaluation")
     if verbose:
         logger.debug(f"Command: {command}")
     
     return_code, stdout, stderr = execute_command(
         command,
-        description=f"Evaluating {env_prefix.lower()} model"
+        description=f"Evaluating {env_prefix.lower()} model",
+        env_vars=env
     )
     
     if return_code != 0:
