@@ -15,10 +15,9 @@ def conversation_to_markdown(conversation: Dict[str, List[Dict[str, str]]]) -> s
         Formatted Markdown string representation of the conversation
     """
     if not conversation or 'messages' not in conversation:
-        return "# AI Conversation\n\n*No messages found*"
-    
+        return "*No messages found*"
+
     messages = conversation['messages']
-    markdown_lines = ["# AI Conversation\n"]
     
     for i, message in enumerate(messages):
         role = message.get('role', 'unknown')
