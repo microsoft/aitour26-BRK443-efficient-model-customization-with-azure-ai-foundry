@@ -12,7 +12,7 @@ deployments:
       version: "2"
     sku:
       name: "Standard"
-      capacity: 100
+      capacity: 1
     regions:
       - westus3
       - northcentralus
@@ -45,7 +45,7 @@ deployments:
       version: "2025-04-14"
     sku:
       name: "GlobalStandard"
-      capacity: 50
+      capacity: 1
     regions:
       - northcentralus
       - westus3
@@ -62,7 +62,7 @@ deployments:
       version: "2025-04-14"
     sku:
       name: "GlobalStandard"
-      capacity: 8
+      capacity: 1
     regions:
       - northcentralus
       - westus3
@@ -79,7 +79,7 @@ deployments:
       version: "2025-04-14"
     sku:
       name: "GlobalStandard"
-      capacity: 50
+      capacity: 1
     regions:
       - northcentralus
       - westus3
