@@ -414,6 +414,10 @@ def reformat_datasets(dataset_path_ft_train: str, dataset_path_ft_valid: str, ds
 @click.option("--valid-split", default=0.1, help="Validation split ratio")
 @click.option("--finetuning-threshold", default=369, help="Minimum samples for fine-tuning")
 @click.option("--raft-questions", default=2, help="Number of questions per chunk")
+@click.option("--citation-format", 
+              type=click.Choice(['legacy-xml-tag', 'md-dash-list'], case_sensitive=False),
+              default="legacy-xml-tag", 
+              help="Citation format: legacy-xml-tag (no reformatting) or md-dash-list (reformat)")
 @click.option("--skip-setup", is_flag=True, help="Skip RAFT repository setup")
 @click.option("--skip-tests", is_flag=True, help="Skip infrastructure tests")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
@@ -425,6 +429,7 @@ def main(
     valid_split: float,
     finetuning_threshold: int,
     raft_questions: int,
+    citation_format: str,
     skip_setup: bool,
     skip_tests: bool,
     verbose: bool
@@ -495,10 +500,32 @@ def main(
             dataset_path_hf_train, dataset_path_hf_valid, ds_path, ds_name, format_type
         )
         
-        # Reformat datasets
-        dataset_path_ft_train_v2, dataset_path_ft_valid_v2 = reformat_datasets(
-            dataset_path_ft_train, dataset_path_ft_valid, ds_path, ds_name
-        )
+        # Conditionally reformat datasets based on citation format
+        if citation_format == "md-dash-list":
+            logger.info("🔄 Citation format set to md-dash-list, reformatting datasets")
+            dataset_path_ft_train_v2, dataset_path_ft_valid_v2 = reformat_datasets(
+                dataset_path_ft_train, dataset_path_ft_valid, ds_path, ds_name
+            )
+            final_train_path = dataset_path_ft_train_v2
+            final_valid_path = dataset_path_ft_valid_v2
+            train_label = "Training Set (v2)"
+            valid_label = "Validation Set (v2)"
+        else:
+            logger.info("🔄 Citation format set to legacy-xml-tag, skipping reformatting")
+            final_train_path = dataset_path_ft_train
+            final_valid_path = dataset_path_ft_valid
+            train_label = "Training Set"
+            valid_label = "Validation Set"
+        
+        # Update state with generated file paths
+        logger.info("💾 Updating state with generated file paths")
+        update_state("DATASET_TRAIN_PATH", final_train_path)
+        update_state("DATASET_VALID_PATH", final_valid_path)
+        update_state("DATASET_EVAL_PATH", dataset_path_hf_eval)
+        update_state("DATASET_PATH_HF_TRAIN", dataset_path_hf_train)
+        update_state("DATASET_PATH_HF_VALID", dataset_path_hf_valid)
+        update_state("DATASET_PATH_HF_EVAL", dataset_path_hf_eval)
+        update_state("CITATION_FORMAT", citation_format)
         
         # Success summary
         console.print("\n✅ [bold green]Dataset Generation Complete![/bold green]\n")
@@ -507,8 +534,8 @@ def main(
         summary_table.add_column("File Type", style="cyan")
         summary_table.add_column("Path", style="white")
         
-        summary_table.add_row("Training Set (v2)", dataset_path_ft_train_v2)
-        summary_table.add_row("Validation Set (v2)", dataset_path_ft_valid_v2)
+        summary_table.add_row(train_label, final_train_path)
+        summary_table.add_row(valid_label, final_valid_path)
         summary_table.add_row("Evaluation Set", dataset_path_hf_eval)
         
         console.print(summary_table)
