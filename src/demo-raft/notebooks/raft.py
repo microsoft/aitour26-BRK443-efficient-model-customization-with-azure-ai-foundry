@@ -13,6 +13,7 @@ from rich.console import Console
 from rich.logging import RichHandler
 
 from lib.commands.gen import gen
+from lib.commands.finetune import finetune
 
 # Initialize Rich console
 console = Console()
@@ -43,8 +44,9 @@ def cli(verbose):
     console.print("🤖 [bold blue]RAFT CLI Toolkit[/bold blue] - Retrieval Augmented Fine Tuning")
 
 
-# Add the gen command
+# Add the gen and finetune commands
 cli.add_command(gen)
+cli.add_command(finetune)
 
 
 @click.command()

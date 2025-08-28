@@ -8,6 +8,7 @@ import json
 import os
 import subprocess
 import sys
+import logging
 from math import ceil
 from pathlib import Path
 from typing import Optional, Tuple
@@ -23,115 +24,18 @@ from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
 from rich.text import Text
 
+from lib.shared import execute_command, setup_environment, console, logger
 from utils import get_env_state_file, update_state
 
-# Initialize Rich console
-console = Console()
 
-# Configure logging with Rich
-import logging
-logger = logging.getLogger("raft_gen")
-
-
-def execute_command(
-    command: str, 
-    cwd: Optional[str] = None, 
-    env_vars: Optional[dict] = None,
-    description: Optional[str] = None
-) -> Tuple[int, str, str]:
+def setup_gen_environment() -> Tuple[str, str]:
     """
-    Execute a shell command and display real-time output.
-    
-    Args:
-        command: The command to execute
-        cwd: Working directory for the command
-        env_vars: Additional environment variables
-        description: Description for logging
-        
-    Returns:
-        Tuple of (return_code, stdout, stderr)
-    """
-    if description:
-        logger.info(f"🔄 {description}")
-    else:
-        logger.info(f"🔄 Executing: {command}")
-    
-    # Prepare environment
-    env = os.environ.copy()
-    if env_vars:
-        env.update(env_vars)
-    # Ensure subprocess thinks it has a terminal for colored output
-    env['FORCE_COLOR'] = '1'
-    env['TERM'] = 'xterm-256color'
-    
-    try:
-        process = subprocess.Popen(
-            command,
-            shell=True,
-            cwd=cwd,
-            env=env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,  # Merge stderr into stdout
-            text=True,
-            bufsize=1,  # Line buffered
-            universal_newlines=True
-        )
-        
-        stdout_lines = []
-        
-        # Read output line by line in real-time
-        while True:
-            output = process.stdout.readline()
-            if output == '' and process.poll() is not None:
-                break
-            if output:
-                line = output.rstrip()
-                stdout_lines.append(line)
-                # Display with visual distinction - indented but preserve colors
-                # Use rich's Text object to handle ANSI codes properly
-                from rich.text import Text
-                colored_line = Text.from_ansi(line)
-                # Create the complete indented line with styling
-                indent_text = Text("    │ ", style="dim")
-                # Apply dim style to the colored line while preserving original colors
-                colored_line.stylize("dim")
-                # Combine indent and content in a single Text object
-                full_line = indent_text + colored_line
-                console.print(full_line)
-        
-        # Wait for process to complete
-        return_code = process.poll()
-        stdout = '\n'.join(stdout_lines)
-        
-        if return_code == 0:
-            logger.info(f"✅ Command completed successfully")
-        else:
-            logger.error(f"❌ Command failed with return code {return_code}")
-        
-        return return_code, stdout, ""
-        
-    except Exception as e:
-        logger.error(f"❌ Failed to execute command: {e}")
-        return 1, "", str(e)
-
-
-def setup_environment() -> Tuple[str, str]:
-    """
-    Set up environment variables and return deployment names.
+    Set up environment variables specific to generation and return deployment names.
     
     Returns:
         Tuple of (embedding_deployment_name, teacher_deployment_name)
     """
-    logger.info("🔧 Setting up environment variables")
-    
-    # Load AZD environment
-    load_azd_env(quiet=True)
-    
-    # Load user provided values
-    load_dotenv(".env")
-    
-    # Load variables passed by previous notebooks
-    load_dotenv(get_env_state_file())
+    setup_environment()  # Load all env vars
     
     embedding_deployment = os.getenv("EMBEDDING_DEPLOYMENT_NAME")
     teacher_deployment = os.getenv("TEACHER_DEPLOYMENT_NAME")
@@ -441,7 +345,7 @@ def gen(
     
     try:
         # Setup environment
-        embedding_deployment, teacher_deployment = setup_environment()
+        embedding_deployment, teacher_deployment = setup_gen_environment()
         
         # Setup RAFT repository
         if not skip_setup:
