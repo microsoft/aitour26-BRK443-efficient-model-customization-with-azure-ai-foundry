@@ -419,3 +419,6 @@ FodyWeavers.xsd
 
 # Temporary workspace
 TMP
+
+# MkDocs build output
+site/
