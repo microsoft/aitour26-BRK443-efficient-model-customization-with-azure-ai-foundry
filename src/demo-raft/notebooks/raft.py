@@ -14,6 +14,7 @@ from rich.logging import RichHandler
 
 from lib.commands.gen import gen
 from lib.commands.check import check
+from lib.commands.run import run
 from lib.commands.finetune import finetune
 from lib.commands.deploy import deploy
 from lib.commands.configure import configure
@@ -30,7 +31,7 @@ click.rich_click.COMMAND_GROUPS = {
     "raft.py": [
         {
             "name": "Workflow Commands",
-            "commands": ["configure", "gen", "finetune", "deploy", "eval"],
+            "commands": ["run", "configure", "gen", "finetune", "deploy", "eval"],
         },
         {
             "name": "Utility Commands", 
@@ -63,7 +64,10 @@ def cli(verbose):
     A comprehensive tool for generating synthetic datasets, fine-tuning models,
     and evaluating performance using the RAFT methodology with Azure AI services.
     
-    [bold yellow]Common Workflow:[/bold yellow]
+    [bold yellow]Quick Start:[/bold yellow]
+    [cyan]raft run[/cyan] - Execute the complete workflow in one command
+    
+    [bold yellow]Step-by-Step Workflow:[/bold yellow]
     [dim]1.[/dim] [cyan]raft configure[/cyan] - Configure AI models and deployments
     [dim]2.[/dim] [cyan]raft check[/cyan] - Verify Azure AI endpoints are working
     [dim]3.[/dim] [cyan]raft gen[/cyan] - Generate synthetic training datasets
@@ -80,6 +84,7 @@ def cli(verbose):
 
 
 # Add the commands
+cli.add_command(run)
 cli.add_command(configure)
 cli.add_command(check)
 cli.add_command(gen)
