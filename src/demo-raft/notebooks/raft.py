@@ -13,6 +13,7 @@ from rich.console import Console
 from rich.logging import RichHandler
 
 from lib.commands.gen import gen
+from lib.commands.check import check
 from lib.commands.finetune import finetune
 from lib.commands.deploy import deploy
 from lib.commands.configure import configure
@@ -33,7 +34,7 @@ click.rich_click.COMMAND_GROUPS = {
         },
         {
             "name": "Utility Commands", 
-            "commands": ["status", "clean"],
+            "commands": ["check", "status", "clean"],
         },
     ]
 }
@@ -64,11 +65,12 @@ def cli(verbose):
     
     [bold yellow]Common Workflow:[/bold yellow]
     [dim]1.[/dim] [cyan]raft configure[/cyan] - Configure AI models and deployments
-    [dim]2.[/dim] [cyan]raft gen[/cyan] - Generate synthetic training datasets
-    [dim]3.[/dim] [cyan]raft finetune[/cyan] - Fine-tune models with generated data
-    [dim]4.[/dim] [cyan]raft deploy[/cyan] - Deploy fine-tuned models to Azure OpenAI
-    [dim]5.[/dim] [cyan]raft eval[/cyan] - Evaluate model performance and compare results
-    [dim]6.[/dim] [cyan]raft status[/cyan] - Monitor progress and results
+    [dim]2.[/dim] [cyan]raft check[/cyan] - Verify Azure AI endpoints are working
+    [dim]3.[/dim] [cyan]raft gen[/cyan] - Generate synthetic training datasets
+    [dim]4.[/dim] [cyan]raft finetune[/cyan] - Fine-tune models with generated data
+    [dim]5.[/dim] [cyan]raft deploy[/cyan] - Deploy fine-tuned models to Azure OpenAI
+    [dim]6.[/dim] [cyan]raft eval[/cyan] - Evaluate model performance and compare results
+    [dim]7.[/dim] [cyan]raft status[/cyan] - Monitor progress and results
     """
     if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -79,6 +81,7 @@ def cli(verbose):
 
 # Add the commands
 cli.add_command(configure)
+cli.add_command(check)
 cli.add_command(gen)
 cli.add_command(finetune)
 cli.add_command(deploy)

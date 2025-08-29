@@ -63,19 +63,6 @@ def setup_raft_repository():
     )
 
 
-def run_infrastructure_tests():
-    """Run infrastructure tests to verify endpoints."""
-    logger.info("🧪 Running infrastructure tests")
-    return_code, _, _ = execute_command(
-        "python -m pytest --rootdir=infra/tests/",
-        description="Verifying infrastructure endpoints"
-    )
-    
-    if return_code != 0:
-        logger.error("❌ Infrastructure tests failed")
-        raise click.ClickException("Infrastructure tests failed. Please check your endpoints.")
-
-
 def create_dataset_directory(ds_path: str):
     """Create dataset directory."""
     logger.info(f"📁 Creating dataset directory: {ds_path}")
@@ -315,7 +302,6 @@ def reformat_datasets(dataset_path_ft_train: str, dataset_path_ft_valid: str, ds
               default="legacy-xml-tag", 
               help="Citation format: [green]legacy-xml-tag[/green] (no reformatting) or [blue]md-dash-list[/blue] (reformat)")
 @click.option("--skip-setup", is_flag=True, help="Skip RAFT repository setup")
-@click.option("--skip-tests", is_flag=True, help="Skip infrastructure endpoint tests")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging output")
 def gen(
     ds_name: str,
@@ -327,7 +313,6 @@ def gen(
     raft_questions: int,
     citation_format: str,
     skip_setup: bool,
-    skip_tests: bool,
     verbose: bool
 ):
     """
@@ -338,10 +323,13 @@ def gen(
     to create high-quality synthetic training data.
     
     [bold yellow]Process Overview:[/bold yellow]
-    [dim]1.[/dim] Setup RAFT repository and verify Azure endpoints
+    [dim]1.[/dim] Setup RAFT repository
     [dim]2.[/dim] Generate Q&A pairs from document chunks  
     [dim]3.[/dim] Split data into training/validation/evaluation sets
     [dim]4.[/dim] Export in fine-tuning compatible formats
+    
+    [bold yellow]Prerequisites:[/bold yellow]
+    Run [cyan]raft check[/cyan] first to verify Azure AI endpoints are configured.
     
     [bold green]Example:[/bold green]
     [cyan]raft gen --ds-name my-dataset --raft-questions 3[/cyan]
@@ -362,12 +350,6 @@ def gen(
             setup_raft_repository()
         else:
             logger.info("⏭️  Skipping RAFT repository setup")
-        
-        # Run infrastructure tests
-        if not skip_tests:
-            run_infrastructure_tests()
-        else:
-            logger.info("⏭️  Skipping infrastructure tests")
         
         # Calculate QA threshold
         qa_threshold = ceil(finetuning_threshold / train_split)
