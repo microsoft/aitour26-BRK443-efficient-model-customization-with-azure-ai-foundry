@@ -50,6 +50,7 @@ logging.basicConfig(
 )
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("azure.core.pipeline.policies").setLevel(logging.WARNING)
 
 @click.group()
 @click.version_option(version="1.0.0", prog_name="RAFT CLI")

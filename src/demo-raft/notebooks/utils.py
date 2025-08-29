@@ -1,6 +1,10 @@
 import os
+import logging
 
 from dotenv import dotenv_values
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_pdf_image(doc_path):
@@ -27,7 +31,7 @@ def update_env_file(env_file, key, value):
     if Path(env_file).exists() and Path(env_file).is_file():
         data = dotenv_values(env_file)
     data[key] = value
-    print(f"Updating state file {env_file} with {key}={redact_secret(key, value)}")
+    logger.debug(f"Updating state file {env_file} with {key}={redact_secret(key, value)}")
     with open(env_file, "w") as f:
         for k, v in data.items():
             f.write(f"{k}={v}\n")
