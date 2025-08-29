@@ -49,6 +49,7 @@ logging.basicConfig(
     handlers=[RichHandler(console=console, rich_tracebacks=True)]
 )
 
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 @click.group()
 @click.version_option(version="1.0.0", prog_name="RAFT CLI")
