@@ -93,7 +93,8 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
     from langchain.schema import HumanMessage, SystemMessage, AIMessage
 
     # Start conversation state
-    messages = [SystemMessage(content=system_prompt)]
+    sys_message = SystemMessage(content=system_prompt)
+    messages = [sys_message]
     console.print("\nType messages and press Enter. Type '/exit' or Ctrl+C to quit.\n")
 
     while True:
@@ -150,12 +151,17 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
             # Build message list to send to the model. Do not permanently inject
             # the retrieved context into `messages` history; include it only for
             # this turn so the model sees the context but history remains clean.
-            call_messages = list(messages)
+            #call_messages = list(messages)
+
+            # Keep just the system prompt
+            call_messages = list([sys_message])
             if context_text:
-                call_messages.append(SystemMessage(content=f"Relevant documents:\n{context_text}"))
+                call_messages.append(SystemMessage(content=context_text))
+
+            prefixed_content = f"{context_text}\n{user_input}" if context_text else user_input
 
             # Append the user message
-            call_messages.append(HumanMessage(content=user_input))
+            call_messages.append(HumanMessage(content=prefixed_content))
 
             # Get model response
             assistant_content = None
