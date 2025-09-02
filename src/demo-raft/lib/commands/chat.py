@@ -155,8 +155,8 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
 
             # Keep just the system prompt
             call_messages = list([sys_message])
-            if context_text:
-                call_messages.append(SystemMessage(content=context_text))
+            #if context_text:
+            #    call_messages.append(SystemMessage(content=context_text))
 
             prefixed_content = f"{context_text}\n{user_input}" if context_text else user_input
 
