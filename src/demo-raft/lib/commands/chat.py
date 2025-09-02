@@ -124,7 +124,9 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
                         logger.info("Retriever returned %s documents for query '%s'", total_docs, user_input[:120])
                         for i, d in enumerate(docs[:search_top_k], start=1):
                             content = getattr(d, "page_content", None) or getattr(d, "content", None) or str(d)
-                            pieces.append(content)
+                            # Escape any existing closing DOCUMENT tags to avoid accidental termination
+                            # Wrap each document in <DOCUMENT>...</DOCUMENT>
+                            pieces.append(f"<DOCUMENT>{content}</DOCUMENT>")
                             metadata = getattr(d, "metadata", {}) or {}
                             src = metadata.get("source") or metadata.get("id") or metadata.get("doc_id") or metadata.get("url") or "unknown"
                             score = metadata.get("score") or getattr(d, "score", None)
@@ -134,7 +136,9 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
                             else:
                                 console.print(f"  • [{i}] {src} — {preview}")
 
-                        context_text = "\n\n".join(pieces)
+                        # Join wrapped documents using a single newline between documents
+                        context_text = "\n".join(pieces)
+                        console.print(f"🔎 Retrieved documents:\n{context_text}")
                     else:
                         console.print("🔎 No relevant documents found.")
                         logger.info("Retriever returned no documents for query '%s'", user_input[:120])
