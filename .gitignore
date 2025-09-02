@@ -420,3 +420,5 @@ FodyWeavers.xsd
 # Temporary workspace
 TMP
 .DS_Store
+
+src/demo-raft/.raft_chats.json

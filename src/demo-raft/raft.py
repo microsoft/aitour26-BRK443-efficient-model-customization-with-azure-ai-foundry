@@ -19,6 +19,7 @@ from lib.commands.finetune import finetune
 from lib.commands.deploy import deploy
 from lib.commands.configure import configure
 from lib.commands.eval import eval
+from lib.commands.chat import chat
 
 # Configure Rich Click
 click.rich_click.USE_RICH_MARKUP = True
@@ -91,6 +92,7 @@ cli.add_command(gen)
 cli.add_command(finetune)
 cli.add_command(deploy)
 cli.add_command(eval)
+cli.add_command(chat)
 
 
 @click.command()
@@ -139,7 +141,6 @@ def clean():
 # Add additional commands
 cli.add_command(status)
 cli.add_command(clean)
-
 
 if __name__ == "__main__":
     cli()
