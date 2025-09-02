@@ -1,275 +1,115 @@
-#!/usr/bin/env python3
-"""Interactive chat TUI for RAFT
-
-- Provides a `chat` click command that launches a Rich based TUI
-- Wraps the existing `create_client` helper into a LangChain-compatible LLM
-- Uses LangChain `ConversationBufferMemory` for simple memory and conversation management
-- When creating a new conversation the user can pick the env prefix: BASELINE or FINETUNE
 """
-import logging
-from typing import Any, Optional
+Interactive Chat Command (uses BASELINE env prefix via helper)
+
+This command uses the repository helper `create_langchain_chat_model` with the
+`BASELINE` env_prefix to create a LangChain chat client. That helper handles
+both OpenAI and Azure OpenAI paths based on env vars like
+`BASELINE_AZURE_OPENAI_ENDPOINT` / `BASELINE_AZURE_OPENAI_DEPLOYMENT` etc.
+
+Assumes langchain v0.3.27 and the project's `lib.utils.raft_llm.create_langchain_chat_model`.
+"""
+
+import os
+
 import rich_click as click
-from rich.panel import Panel
-from rich.table import Table
 
-# Use shared helpers and console/logger configured elsewhere in the CLI
 from lib.shared import setup_environment, console, logger
-
-# Use the chat-model base and schema types from LangChain for correct integration
-from langchain.chat_models.base import BaseChatModel
-from langchain.schema import (
-    ChatResult,
-    ChatGeneration,
-    AIMessage,
-    BaseMessage,
-    HumanMessage,
-    SystemMessage,
-    # ToolMessage may not be present in some LangChain builds; handle by name at runtime
-)
-from langchain.memory import ConversationBufferMemory
-
-from infra.tests.utils import create_client
-
-logger = logging.getLogger("raft_cli.chat")
-
-
-class RaftLangChainLLM(BaseChatModel):
-    """LangChain ChatModel wrapper around the project's create_client helper.
-
-    Implements `_generate` to conform with LangChain chat model integration
-    (see LangChain docs in `langchain_llms.txt`).
-    """
-
-    env_prefix: str = "BASELINE"
-    _client: Any = None
-    _model: Optional[str] = None
-
-    def __init__(self, **data):
-        # Let pydantic / BaseChatModel populate declared fields (env_prefix etc.)
-        super().__init__(**data)
-        try:
-            client, model = create_client(self.env_prefix)
-            self._client = client
-            self._model = model
-            logger.debug("Initialized RaftLangChainLLM with env_prefix=%s model=%s", self.env_prefix, self._model)
-        except Exception as e:
-            logger.debug("Failed to initialize underlying client for env_prefix=%s: %s", self.env_prefix, e)
-
-    def _messages_to_sdk(self, messages: list[BaseMessage]):
-        sdk = []
-        for m in messages:
-            if isinstance(m, HumanMessage):
-                role = "user"
-            elif isinstance(m, AIMessage):
-                role = "assistant"
-            elif isinstance(m, SystemMessage):
-                role = "system"
-            else:
-                # Fallback: detect ToolMessage by class name or other heuristics
-                cls_name = getattr(m, "__class__", type(m)).__name__
-                if cls_name == "ToolMessage":
-                    role = "tool"
-                else:
-                    role = getattr(m, "type", "user") or "user"
-            # message content can be a string or structured blocks; keep as-is
-            content = getattr(m, "content", "")
-            sdk.append({"role": role, "content": content})
-        return sdk
-
-    def _generate(self, messages: list[BaseMessage], stop: Optional[list[str]] = None, **kwargs) -> ChatResult:
-        client = self._client
-        model = self._model
-        if client is None or model is None:
-            # Attempt to (re)create client on-demand
-            client, model = create_client(self.env_prefix)
-
-        sdk_messages = self._messages_to_sdk(messages)
-        response = client.chat.completions.create(model=model, messages=sdk_messages)
-        if not response or not getattr(response, "choices", None):
-            raise ValueError("No response from model")
-
-        choice = response.choices[0]
-        message_obj = getattr(choice, "message", None)
-        response_text = message_obj.content if message_obj else str(choice)
-
-        ai_message = AIMessage(content=response_text)
-        gen = ChatGeneration(message=ai_message)
-        return ChatResult(generations=[gen])
-
-    @property
-    def _llm_type(self) -> str:
-        return "raft_chat"
-
-
-class Conversation:
-    def __init__(self, name: str, env_prefix: str = "BASELINE"):
-        self.name = name
-        self.env_prefix = env_prefix
-        # LLM wrapper (builds client lazily during initialization)
-        self.llm = RaftLangChainLLM(env_prefix=env_prefix)
-        # LangChain memory (we will update it when sending messages)
-        self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-        # Simple local history for composing chat messages to the SDK
-        self.history = []  # list of {"role": "user"|"assistant", "content": str}
-
-    def chat(self, text: str) -> str:
-        # Append user message
-        self.history.append({"role": "user", "content": text})
-
-        # Ensure client is available
-        client = getattr(self.llm, "_client", None)
-        model = getattr(self.llm, "_model", None)
-        if client is None or model is None:
-            # Try to create client on-demand
-            client, model = create_client(self.env_prefix)
-
-        # Compose messages from history for the chat SDK
-        messages = [{"role": m["role"], "content": m["content"]} for m in self.history]
-
-        response = client.chat.completions.create(model=model, messages=messages)
-        if not response or not getattr(response, "choices", None):
-            raise ValueError("No response from model")
-
-        choice = response.choices[0]
-        message = getattr(choice, "message", None)
-        response_text = message.content if message else str(choice)
-
-        # Append assistant message to history and update LangChain memory
-        self.history.append({"role": "assistant", "content": response_text})
-        try:
-            # Save to LangChain memory in the expected shape
-            self.memory.save_context({"input": text}, {"output": response_text})
-        except Exception:
-            # Memory implementations may differ between LangChain versions; ignore if not supported
-            pass
-
-        return response_text
-
-
-class ConversationManager:
-    def __init__(self):
-        self._conversations = {}
-
-    def create(self, name: str, env_prefix: str = "BASELINE") -> Conversation:
-        if name in self._conversations:
-            raise ValueError(f"Conversation '{name}' already exists")
-        conv = Conversation(name=name, env_prefix=env_prefix)
-        self._conversations[name] = conv
-        return conv
-
-    def list(self):
-        return list(self._conversations.keys())
-
-    def get(self, name: str) -> Conversation:
-        return self._conversations.get(name)
+from lib.utils.raft_llm import create_langchain_chat_model
 
 
 @click.command()
-@click.option("--start", is_flag=True, help="Start the chat UI immediately")
-def chat(start: bool):
-    """Start an interactive chat TUI backed by LangChain and the RAFT OpenAI/Azure clients.
-
-    Conversations may be created to use either the BASELINE or FINETUNE env prefix
-    (these correspond to the prefixes expected by the create_client helper).
+@click.option("--deployment", "-d", default=None, help="Override the BASELINE_AZURE_OPENAI_DEPLOYMENT from the environment")
+@click.option("--temperature", "-t", default=0.0, type=float, help="Sampling temperature (honored by the helper client if applicable)")
+@click.option("--system-prompt", default="You are a helpful assistant.", help="System prompt for the chat")
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging output")
+def chat(deployment: str, temperature: float, system_prompt: str, verbose: bool):
     """
-    # Load environment variables like other commands do
+    Start an interactive chat using a LangChain model created by
+    `create_langchain_chat_model(env_prefix="BASELINE").`
+
+    The helper will read BASELINE_* environment variables and return a
+    configured LangChain chat client and the model/deployment name.
+    """
+    if verbose:
+        logger.setLevel("DEBUG")
+        logger.debug("Verbose logging enabled")
+
+    # Ensure environment files are loaded
     setup_environment()
 
-    manager = ConversationManager()
+    # If the user provided a deployment override, set the BASELINE env var so
+    # the helper will pick it up.
+    if deployment:
+        os.environ["BASELINE_AZURE_OPENAI_DEPLOYMENT"] = deployment
 
-    console.print(Panel("[bold blue]RAFT Chat TUI[/bold blue]\nCreate or open conversations and chat interactively", expand=False))
+    # Create the LangChain chat model using the project's helper
+    try:
+        llm, model = create_langchain_chat_model("BASELINE")
+    except Exception as e:
+        raise click.ClickException(f"Failed to create baseline chat model: {e}") from e
 
-    active = None
+    console.print(f"🟢 Starting chat with baseline deployment [bold]{model}[/bold]")
+
+    # Start conversation
+    try:
+        # import message types from langchain for structured messages
+        from langchain.schema import HumanMessage, SystemMessage, AIMessage
+    except Exception:
+        # If langchain isn't available, still allow the client to be called with raw strings
+        HumanMessage = SystemMessage = AIMessage = None
+
+    messages = [SystemMessage(content=system_prompt) if SystemMessage else {"role": "system", "content": system_prompt}]
+    console.print("\nType messages and press Enter. Type '/exit' or Ctrl+C to quit.\n")
 
     while True:
-        # If there's no active conversation show the management menu
-        if active is None:
-            table = Table(show_header=True, header_style="bold magenta")
-            table.add_column("#")
-            table.add_column("Conversation")
-            for idx, name in enumerate(manager.list(), start=1):
-                table.add_row(str(idx), name)
-            console.print(table)
-
-            console.print("[b]n[/b] New conversation    [b]o[/b] Open conversation    [b]q[/b] Quit")
-            choice = console.input("Select> ").strip().lower()
-
-            if choice in ("q", "quit", "exit"):
-                console.print("Exiting chat")
-                return
-
-            if choice in ("n", "new"):
-                name = console.input("Conversation name: ").strip()
-                if not name:
-                    console.print("[red]Conversation name is required[/red]")
-                    continue
-                env_prefix = click.prompt("Env prefix", type=click.Choice(["BASELINE", "FINETUNE"]), default="BASELINE")
-                try:
-                    active = manager.create(name, env_prefix)
-                    console.print(f"Created conversation [bold]{name}[/bold] using env prefix [green]{env_prefix}[/green]")
-                except Exception as e:
-                    console.print(f"[red]Failed to create conversation: {e}[/red]")
-                    active = None
-                    continue
-
-            elif choice in ("o", "open"):
-                names = manager.list()
-                if not names:
-                    console.print("[yellow]No conversations available - create one first[/yellow]")
-                    continue
-                sel = console.input("Enter conversation name or index: ").strip()
-                selected = None
-                if sel.isdigit():
-                    idx = int(sel) - 1
-                    if 0 <= idx < len(names):
-                        selected = names[idx]
-                else:
-                    if sel in names:
-                        selected = sel
-                if not selected:
-                    console.print("[red]Invalid selection[/red]")
-                    continue
-                active = manager.get(selected)
-                console.print(f"Opened conversation [bold]{active.name}[/bold]")
-            else:
-                console.print("[red]Unknown command[/red]")
-                continue
-
-        # Active conversation chat loop
-        console.rule(f"[bold cyan]Conversation: {active.name}[/bold cyan] ([green]{active.env_prefix}[/green])")
-        console.print("Type your message and press Enter. Type 'back' to return to conversations, 'quit' to exit.")
-        while True:
-            try:
-                user_input = console.input("[bold green]You[/bold green]> ").rstrip()
-            except (KeyboardInterrupt, EOFError):
-                console.print("\nExiting chat")
-                return
-
+        try:
+            user_input = console.input("[bold cyan]You:[/bold cyan] ")
             if not user_input:
                 continue
-            if user_input.lower() in ("quit", "exit"):
-                console.print("Exiting chat")
-                return
-            if user_input.lower() in ("back", "return"):
-                active = None
+
+            if user_input.strip().lower() in ("/exit", "exit", "quit"):
+                console.print("👋 Exiting chat.")
                 break
 
-            with console.status("Thinking..."):
-                try:
-                    resp = active.chat(user_input)
-                except Exception as e:
-                    console.print(f"[red]Error from model: {e}[/red]")
-                    resp = None
+            # Build message depending on whether langchain message classes are available
+            if HumanMessage:
+                messages.append(HumanMessage(content=user_input))
+            else:
+                messages.append({"role": "user", "content": user_input})
 
-            if resp is not None:
-                console.print(Panel(resp, title="Assistant", expand=False))
+            # Try the high-level predict_messages API if available
+            assistant_content = None
+            try:
+                if hasattr(llm, "predict_messages"):
+                    response = llm.predict_messages(messages)
+                    assistant_content = getattr(response, "content", str(response))
+                else:
+                    # Fallback to calling the model directly
+                    result = llm(messages)
+                    if hasattr(result, "generations") and result.generations:
+                        gen = result.generations[0][0]
+                        if hasattr(gen, "text") and gen.text:
+                            assistant_content = gen.text
+                        elif hasattr(gen, "message") and hasattr(gen.message, "content"):
+                            assistant_content = gen.message.content
+                    if assistant_content is None:
+                        assistant_content = str(result)
+            except Exception as e:
+                logger.error(f"Error generating assistant response: {e}")
+                console.print_exception()
+                break
 
+            console.print(f"[bold green]Assistant:[/bold green] {assistant_content}\n")
 
-# Expose the command for raft.py to import
+            if AIMessage:
+                messages.append(AIMessage(content=assistant_content))
+            else:
+                messages.append({"role": "assistant", "content": assistant_content})
 
-
-# legacy click integration expects a symbol named `chat`
-
-
-if __name__ == '__main__':
-    chat()
+        except KeyboardInterrupt:
+            console.print("\n👋 Exiting chat.")
+            break
+        except Exception as e:
+            logger.error(f"Error during chat: {e}")
+            console.print_exception()
+            break
