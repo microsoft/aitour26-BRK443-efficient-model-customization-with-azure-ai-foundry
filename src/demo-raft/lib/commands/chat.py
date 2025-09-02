@@ -95,17 +95,43 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
     # Start conversation state
     sys_message = SystemMessage(content=system_prompt)
     messages = [sys_message]
+    # local user history used to populate readline so Up/Down arrows recall prior user inputs
+    user_history = []
+
     console.print("\nType messages and press Enter. Type '/exit' or Ctrl+C to quit.\n")
 
     while True:
         try:
-            user_input = console.input("[bold cyan]You:[/bold cyan] ")
+            # Use readline-based input (if available) so arrow keys navigate our local history
+            try:
+                import readline
+
+                # Rebuild program-local history for this prompt (avoid polluting shell history)
+                try:
+                    readline.clear_history()
+                except Exception:
+                    pass
+
+                for h in user_history:
+                    try:
+                        readline.add_history(h)
+                    except Exception:
+                        pass
+
+                user_input = input("You: ")
+            except Exception:
+                # fallback to rich console input
+                user_input = console.input("[bold cyan]You:[/bold cyan] ")
+
             if not user_input:
                 continue
 
             if user_input.strip().lower() in ("/exit", "exit", "quit"):
                 console.print("👋 Exiting chat.")
                 break
+
+            # Append this user message to our local history so it can be recalled later
+            user_history.append(user_input)
 
             # If search is enabled, retrieve documents for the user query
             context_text = None
@@ -126,8 +152,9 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
                         for i, d in enumerate(docs[:search_top_k], start=1):
                             content = getattr(d, "page_content", None) or getattr(d, "content", None) or str(d)
                             # Escape any existing closing DOCUMENT tags to avoid accidental termination
-                            # Wrap each document in <DOCUMENT>...</DOCUMENT>
-                            pieces.append(f"<DOCUMENT>{content}</DOCUMENT>")
+                            safe_content = content.replace("</DOCUMENT>", "<\\/DOCUMENT>")
+                            # Wrap each document in <DOCUMENT>...</DOCUMENT> (escaped closing tag)
+                            pieces.append(f"<DOCUMENT>{safe_content}<\\/DOCUMENT>")
                             metadata = getattr(d, "metadata", {}) or {}
                             src = metadata.get("source") or metadata.get("id") or metadata.get("doc_id") or metadata.get("url") or "unknown"
                             score = metadata.get("score") or getattr(d, "score", None)
@@ -151,12 +178,7 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
             # Build message list to send to the model. Do not permanently inject
             # the retrieved context into `messages` history; include it only for
             # this turn so the model sees the context but history remains clean.
-            #call_messages = list(messages)
-
-            # Keep just the system prompt
             call_messages = list([sys_message])
-            #if context_text:
-            #    call_messages.append(SystemMessage(content=context_text))
 
             prefixed_content = f"{context_text}\n{user_input}" if context_text else user_input
 
