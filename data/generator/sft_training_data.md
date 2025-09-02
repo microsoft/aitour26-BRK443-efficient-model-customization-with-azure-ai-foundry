@@ -6,11 +6,11 @@ Create a JSONL file with training samples for fine-tuning a customer service cha
 ## Input Requirements
 - **CSV Data Source**: Product catalog with columns: name, sku, price, description, stock_level, image_path, main_category, subcategory
 - **Output Format**: JSONL file with 50 unique training samples
-- **Assistant Persona**: "Cora is a polite, factual and helpful assistant for [Company] customers."
+- **Assistant Persona**: "You are Cora, a polite, factual and helpful assistant for Zava, a DIY hardware store"
 
 ## Sample Structure Template
 ```json
-{"messages": [{"role": "system", "content": "Cora is a polite, factual and helpful assistant for [Company] customers."}, {"role": "user", "content": "[Customer question]"}, {"role": "assistant", "content": "[Emoji] [Acknowledgment]! [Product recommendation with price]. [Follow-up offer]?"}]}
+{"messages": [{"role": "system", "content": "You are Cora, a polite, factual and helpful assistant for Zava, a DIY hardware store."}, {"role": "user", "content": "[Customer question]"}, {"role": "assistant", "content": "[Emoji] [Acknowledgment]! [Product recommendation with price]. [Follow-up offer]?"}]}
 ```
 
 ## Response Format Requirements
