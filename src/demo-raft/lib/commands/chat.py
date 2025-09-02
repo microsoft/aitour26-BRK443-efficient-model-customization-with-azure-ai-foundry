@@ -38,6 +38,12 @@ except Exception:
 # Persisted chats file (placed at the demo-raft root)
 CHATS_FILE: Path = Path(__file__).resolve().parents[2] / ".raft_chats.json"
 
+# Default assistant/system prompt used by interactive components
+SYSTEM_PROMPT = (
+    "The following is a conversation with an AI assistant. "
+    "The assistant is helpful, clever, friendly and gives concise and accurate answers."
+)
+
 
 def load_chats() -> Dict[str, Any]:
     if not CHATS_FILE.exists():
@@ -203,6 +209,11 @@ def open_chat_tui(chat: Dict[str, Any]) -> None:
 
         # Prepare messages to send to the model (send full conversation for context)
         msgs_for_api = [{"role": m.get("role", "user"), "content": m.get("content", "")} for m in chat.get("messages", [])]
+
+        # Prepend the system prompt if not already present
+        if not msgs_for_api or msgs_for_api[0].get("role") != "system":
+            msgs_for_api.insert(0, {"role": "system", "content": SYSTEM_PROMPT})
+            logger.debug("Prepended system prompt to messages for API (length now %d)", len(msgs_for_api))
 
         # Call the selected endpoint using the shared create_client helper
         try:
