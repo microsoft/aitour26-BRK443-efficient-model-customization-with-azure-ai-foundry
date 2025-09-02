@@ -2,13 +2,12 @@
 """
 Chat command for RAFT CLI - interactive chat TUI.
 
-Provides a small Rich-based TUI to chat with the configured student and
+Provides a small Rich-based TUI to chat with the configured finetune and
 baseline endpoints. Chat history is persisted across restarts in
 '.raft_chats.json' stored at the root of the demo-raft folder.
 
-This module re-uses the create_client helper from infra/tests/utils.py
-which the test-suite uses; that helper expects environment variables
-with prefixes such as STUDENT_* or BASELINE_*.
+This module re-uses the create_client helper from infra/tests/utils.py.
+It expects environment variables with prefixes FINETUNE_* or BASELINE_*.
 """
 
 import json
@@ -59,7 +58,7 @@ def save_chats(chats: Dict[str, Any]) -> None:
         console.print(f"[red]Failed to save chats: {e}[/red]")
 
 
-def create_new_chat(name: str, initial_endpoint: str = "student") -> Dict[str, Any]:
+def create_new_chat(name: str, initial_endpoint: str = "finetune") -> Dict[str, Any]:
     chats = load_chats()
     chat_id = uuid.uuid4().hex
     chat = {
@@ -67,7 +66,7 @@ def create_new_chat(name: str, initial_endpoint: str = "student") -> Dict[str, A
         "name": name,
         "created_at": datetime.utcnow().isoformat() + "Z",
         "messages": [],
-        "endpoint": (initial_endpoint or "student").lower(),
+        "endpoint": (initial_endpoint or "finetune").lower(),
     }
     chats[chat_id] = chat
     save_chats(chats)
@@ -90,11 +89,18 @@ def _safe_create_client_for(endpoint: str):
     # Ensure environment variables are loaded
     setup_environment()
 
-    env_prefix = endpoint.upper()
+    ep = endpoint.lower()
+    if ep == "finetune":
+        pref = "FINETUNE"
+    elif ep == "baseline":
+        pref = "BASELINE"
+    else:
+        raise click.ClickException("Unsupported endpoint. Use 'finetune' or 'baseline'.")
+
     try:
-        return create_client(env_prefix)
+        return create_client(pref)
     except Exception as e:
-        raise click.ClickException(f"Failed to create client for endpoint '{endpoint}': {e}")
+        raise click.ClickException(f"Failed to create client for endpoint '{endpoint}' using prefix '{pref}': {e}")
 
 
 def _format_message(msg: Dict[str, Any]) -> str:
@@ -113,7 +119,7 @@ def _format_message(msg: Dict[str, Any]) -> str:
 
 
 def open_chat_tui(chat: Dict[str, Any]) -> None:
-    current_endpoint = chat.get("endpoint", "student").lower()
+    current_endpoint = chat.get("endpoint", "finetune").lower()
     console.rule(f" Chat: [bold]{chat.get('name')}[/bold] • Current endpoint: [cyan]{current_endpoint}[/cyan] ")
     console.print("[dim]Tip: use /switch to change endpoint without leaving the chat. Type /help for more commands.[/dim]")
 
@@ -149,7 +155,7 @@ def open_chat_tui(chat: Dict[str, Any]) -> None:
                 if len(parts) > 1:
                     new_ep = parts[1].lower()
                 else:
-                    new_ep = "baseline" if current_endpoint == "student" else "student"
+                    new_ep = "baseline" if current_endpoint == "finetune" else "finetune"
                 current_endpoint = new_ep
                 chat["endpoint"] = current_endpoint
                 console.print(f"Switched endpoint to [bold]{current_endpoint}[/bold]")
@@ -170,7 +176,7 @@ def open_chat_tui(chat: Dict[str, Any]) -> None:
                 console.print("Chat saved.")
                 continue
             elif cmd == "help":
-                console.print("Commands: /switch [student|baseline], /history, /save, /exit, /help")
+                console.print("Commands: /switch [finetune|baseline], /history, /save, /exit, /help")
                 continue
             else:
                 console.print(f"Unknown command '/{cmd}'. Type /help for commands.")
@@ -246,7 +252,7 @@ def chat() -> None:
         if not chats:
             console.print("No chats found. Create a new chat now.")
             name = console.input("Chat name: ")
-            endpoint = Prompt.ask("Initial endpoint", choices=["student", "baseline"], default="student")
+            endpoint = Prompt.ask("Initial endpoint", choices=["finetune", "baseline"], default="finetune")
             chat_obj = create_new_chat(name, endpoint)
             setup_environment()
             open_chat_tui(chat_obj)
@@ -278,7 +284,7 @@ def chat() -> None:
 
         if verb in ("n", "new"):
             name = console.input("Chat name: ")
-            endpoint = Prompt.ask("Initial endpoint", choices=["student", "baseline"], default="student")
+            endpoint = Prompt.ask("Initial endpoint", choices=["finetune", "baseline"], default="finetune")
             chat_obj = create_new_chat(name, endpoint)
             setup_environment()
             open_chat_tui(chat_obj)
