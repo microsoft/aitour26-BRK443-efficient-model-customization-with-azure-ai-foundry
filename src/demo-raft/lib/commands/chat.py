@@ -139,7 +139,7 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
 
                         # Join wrapped documents using a single newline between documents
                         context_text = "\n".join(pieces)
-                        console.print(f"🔎 Retrieved documents:\n{context_text}")
+                        logger.debug(f"🔎 Retrieved documents:\n{context_text}")
                     else:
                         console.print("🔎 No relevant documents found.")
                         logger.info("Retriever returned no documents for query '%s'", user_input[:120])
