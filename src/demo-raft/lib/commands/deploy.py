@@ -395,6 +395,7 @@ def deploy(
         update_state("FINETUNE_AZURE_OPENAI_DEPLOYMENT", deployment_name)
         update_state("FINETUNE_MODEL_NAME", fine_tuned_model)
         update_state("FINETUNE_MODEL_API", os.getenv("STUDENT_MODEL_API"))
+        update_state("FINETUNE_OPENAI_API_VERSION", "2024-12-01-preview")
         
         # Display summary
         console.print("\n✅ [bold green]Deployment Created Successfully![/bold green]\n")
