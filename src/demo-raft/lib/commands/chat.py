@@ -102,26 +102,32 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
 
     while True:
         try:
-            # Use readline-based input (if available) so arrow keys navigate our local history
-            try:
-                import readline
+            # Use Rich Prompt (with prompt_toolkit history if available) so arrow keys recall prior inputs
+            from rich.prompt import Prompt
+            # Prefer prompt_toolkit-backed session for history
+            from prompt_toolkit.history import InMemoryHistory
+            from prompt_toolkit.shortcuts import PromptSession
+            from prompt_toolkit.styles import Style
 
-                # Rebuild program-local history for this prompt (avoid polluting shell history)
+            history = InMemoryHistory()
+            for h in user_history:
                 try:
-                    readline.clear_history()
+                    history.append_string(h)
                 except Exception:
                     pass
 
-                for h in user_history:
-                    try:
-                        readline.add_history(h)
-                    except Exception:
-                        pass
+            style = Style.from_dict({
+                # Style for the prompt
+                "prompt": "bold green",
+                # Style for user input
+                "": "#ff0066",
+                # Style for completion menu
+                "completion-menu.completion": "bg:#008888 #ffffff",
+                "completion-menu.completion.current": "bg:#00aaaa #000000",
+            })
+            session = PromptSession(history=history)
 
-                user_input = input("You: ")
-            except Exception:
-                # fallback to rich console input
-                user_input = console.input("[bold cyan]You:[/bold cyan] ")
+            user_input = session.prompt(style=style, message=[("class:prompt", "You: ")])
 
             if not user_input:
                 continue
