@@ -59,6 +59,7 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
 
     # Prepare optional Azure AI Search retriever
     retriever = None
+    index_name = None
     if use_search:
         try:
             from langchain_community.retrievers import AzureAISearchRetriever
@@ -82,9 +83,11 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
             content_key="content", 
             top_k=search_top_k, 
             index_name=index_name,
-            azure_ad_token=ad_token
+            api_key=os.getenv("AZURE_AI_SEARCH_API_KEY"),
+            #azure_ad_token=ad_token
         )
         logger.debug("Created AzureAISearchRetriever for index %s (top_k=%s)", index_name, search_top_k)
+        logger.info("Using Azure AI Search retriever for index: %s", index_name)
 
     # Import message types from langchain (assume available)
     from langchain.schema import HumanMessage, SystemMessage, AIMessage
@@ -107,26 +110,37 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
             context_text = None
             if retriever:
                 try:
+                    logger.info("Retriever invoked for index %s with query: %s", index_name, user_input[:120])
                     # Try common retriever APIs
-                    if hasattr(retriever, "get_relevant_documents"):
-                        docs = retriever.get_relevant_documents(user_input)
-                    elif hasattr(retriever, "invoke"):
-                        docs = retriever.invoke(user_input)
-                    elif hasattr(retriever, "retrieve"):
-                        docs = retriever.retrieve(user_input)
-                    else:
-                        docs = []
+                    docs = retriever.invoke(user_input)
 
                     # Build a simple context string from retrieved documents
                     if docs:
                         pieces = []
-                        for d in docs[:search_top_k]:
-                            # Some retrievers return dict-like objects, others Document instances
+                        # Indicate retrieval to the user and show short previews
+                        total_docs = len(docs)
+                        shown = min(total_docs, search_top_k)
+                        console.print(f"🔎 Retrieved {total_docs} documents (showing top {shown})")
+                        logger.info("Retriever returned %s documents for query '%s'", total_docs, user_input[:120])
+                        for i, d in enumerate(docs[:search_top_k], start=1):
                             content = getattr(d, "page_content", None) or getattr(d, "content", None) or str(d)
                             pieces.append(content)
+                            metadata = getattr(d, "metadata", {}) or {}
+                            src = metadata.get("source") or metadata.get("id") or metadata.get("doc_id") or metadata.get("url") or "unknown"
+                            score = metadata.get("score") or getattr(d, "score", None)
+                            preview = content.replace("\n", " ")[:240]
+                            if score is not None:
+                                console.print(f"  • [{i}] {src} (score={score}) — {preview}")
+                            else:
+                                console.print(f"  • [{i}] {src} — {preview}")
+
                         context_text = "\n\n".join(pieces)
+                    else:
+                        console.print("🔎 No relevant documents found.")
+                        logger.info("Retriever returned no documents for query '%s'", user_input[:120])
                 except Exception as e:
                     logger.error("Search retrieval failed: %s", e)
+                    console.print(f"🔎 Search retrieval failed: {e}")
                     context_text = None
 
             # Build message list to send to the model. Do not permanently inject
@@ -142,19 +156,8 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
             # Get model response
             assistant_content = None
             try:
-                if hasattr(llm, "predict_messages"):
-                    response = llm.predict_messages(call_messages)
-                    assistant_content = getattr(response, "content", str(response))
-                else:
-                    result = llm(call_messages)
-                    if hasattr(result, "generations") and result.generations:
-                        gen = result.generations[0][0]
-                        if hasattr(gen, "text") and gen.text:
-                            assistant_content = gen.text
-                        elif hasattr(gen, "message") and hasattr(gen.message, "content"):
-                            assistant_content = gen.message.content
-                    if assistant_content is None:
-                        assistant_content = str(result)
+                response = llm.invoke(call_messages)
+                assistant_content = response.content
             except Exception as e:
                 logger.error(f"Error generating assistant response: {e}")
                 console.print_exception()
