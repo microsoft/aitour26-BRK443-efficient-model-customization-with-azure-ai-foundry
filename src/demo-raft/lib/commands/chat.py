@@ -1,10 +1,11 @@
 """
-Interactive Chat Command (uses configurable env prefix via helper)
+Interactive Chat Command (uses configurable env prefix + optional Azure AI Search retriever)
 
 This command uses the repository helper `create_langchain_chat_model` with a
 configurable env_prefix (default: BASELINE) to create a LangChain chat client.
-The helper handles both OpenAI and Azure OpenAI paths based on env vars like
-`<PREFIX>_AZURE_OPENAI_ENDPOINT` / `<PREFIX>_AZURE_OPENAI_DEPLOYMENT` etc.
+Optionally, it can use `AzureAISearchRetriever` (from `langchain-community`) to
+retrieve relevant documents from an Azure AI Search index and include them as
+context for each user query.
 
 Assumes langchain v0.3.27 and the project's `lib.utils.raft_llm.create_langchain_chat_model`.
 """
@@ -19,17 +20,20 @@ from lib.utils.raft_llm import create_langchain_chat_model
 
 @click.command()
 @click.option("--env-prefix", default="BASELINE", help="Environment prefix used by create_langchain_chat_model (e.g. BASELINE, FINETUNE, STUDENT)")
+@click.option("--use-search", is_flag=True, help="Enable Azure AI Search retriever to augment user queries with retrieved context")
+@click.option("--search-index", default=None, help="Azure AI Search index name (overrides AZURE_AI_SEARCH_INDEX_NAME env var)")
+@click.option("--search-top-k", default=3, type=int, help="Number of search results to retrieve and include as context")
 @click.option("--deployment", "-d", default=None, help="Override the <PREFIX>_AZURE_OPENAI_DEPLOYMENT from the environment")
 @click.option("--temperature", "-t", default=0.0, type=float, help="Sampling temperature (honored by the helper client if applicable)")
 @click.option("--system-prompt", default="You are a helpful assistant.", help="System prompt for the chat")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging output")
-def chat(env_prefix: str, deployment: str, temperature: float, system_prompt: str, verbose: bool):
+def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int, deployment: str, temperature: float, system_prompt: str, verbose: bool):
     """
     Start an interactive chat using a LangChain model created by
     `create_langchain_chat_model(env_prefix)`.
 
-    The helper will read <PREFIX>_* environment variables and return a
-    configured LangChain chat client and the model/deployment name.
+    Optionally uses Azure AI Search retriever to fetch relevant documents and
+    include them as context for each user query.
     """
     if verbose:
         logger.setLevel("DEBUG")
@@ -53,10 +57,39 @@ def chat(env_prefix: str, deployment: str, temperature: float, system_prompt: st
 
     console.print(f"🟢 Starting chat with deployment [bold]{model}[/bold] using prefix [bold]{prefix}[/bold]")
 
+    # Prepare optional Azure AI Search retriever
+    retriever = None
+    if use_search:
+        try:
+            from langchain_community.retrievers import AzureAISearchRetriever
+        except Exception as e:
+            raise click.ClickException(
+                "langchain-community and Azure Search packages are required for --use-search.\n"
+                "Install with: pip install langchain-community azure-search-documents azure-identity"
+            ) from e
+
+        index_name = search_index or os.getenv("AZURE_AI_SEARCH_INDEX_NAME")
+        if not index_name:
+            raise click.ClickException(
+                "Azure AI Search index name not provided. Set AZURE_AI_SEARCH_INDEX_NAME or pass --search-index.")
+
+        from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+        token_provider = get_bearer_token_provider(DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default")
+        ad_token = token_provider()
+
+        # Create retriever - service name and api key are picked up from env vars
+        retriever = AzureAISearchRetriever(
+            content_key="content", 
+            top_k=search_top_k, 
+            index_name=index_name,
+            azure_ad_token=ad_token
+        )
+        logger.debug("Created AzureAISearchRetriever for index %s (top_k=%s)", index_name, search_top_k)
+
     # Import message types from langchain (assume available)
     from langchain.schema import HumanMessage, SystemMessage, AIMessage
 
-    # Start conversation
+    # Start conversation state
     messages = [SystemMessage(content=system_prompt)]
     console.print("\nType messages and press Enter. Type '/exit' or Ctrl+C to quit.\n")
 
@@ -70,14 +103,58 @@ def chat(env_prefix: str, deployment: str, temperature: float, system_prompt: st
                 console.print("👋 Exiting chat.")
                 break
 
-            # Append user message
-            messages.append(HumanMessage(content=user_input))
+            # If search is enabled, retrieve documents for the user query
+            context_text = None
+            if retriever:
+                try:
+                    # Try common retriever APIs
+                    if hasattr(retriever, "get_relevant_documents"):
+                        docs = retriever.get_relevant_documents(user_input)
+                    elif hasattr(retriever, "invoke"):
+                        docs = retriever.invoke(user_input)
+                    elif hasattr(retriever, "retrieve"):
+                        docs = retriever.retrieve(user_input)
+                    else:
+                        docs = []
 
-            # Try the high-level predict_messages API if available
+                    # Build a simple context string from retrieved documents
+                    if docs:
+                        pieces = []
+                        for d in docs[:search_top_k]:
+                            # Some retrievers return dict-like objects, others Document instances
+                            content = getattr(d, "page_content", None) or getattr(d, "content", None) or str(d)
+                            pieces.append(content)
+                        context_text = "\n\n".join(pieces)
+                except Exception as e:
+                    logger.error("Search retrieval failed: %s", e)
+                    context_text = None
+
+            # Build message list to send to the model. Do not permanently inject
+            # the retrieved context into `messages` history; include it only for
+            # this turn so the model sees the context but history remains clean.
+            call_messages = list(messages)
+            if context_text:
+                call_messages.append(SystemMessage(content=f"Relevant documents:\n{context_text}"))
+
+            # Append the user message
+            call_messages.append(HumanMessage(content=user_input))
+
+            # Get model response
             assistant_content = None
             try:
-                response = llm(messages)
-                assistant_content = response.content
+                if hasattr(llm, "predict_messages"):
+                    response = llm.predict_messages(call_messages)
+                    assistant_content = getattr(response, "content", str(response))
+                else:
+                    result = llm(call_messages)
+                    if hasattr(result, "generations") and result.generations:
+                        gen = result.generations[0][0]
+                        if hasattr(gen, "text") and gen.text:
+                            assistant_content = gen.text
+                        elif hasattr(gen, "message") and hasattr(gen.message, "content"):
+                            assistant_content = gen.message.content
+                    if assistant_content is None:
+                        assistant_content = str(result)
             except Exception as e:
                 logger.error(f"Error generating assistant response: {e}")
                 console.print_exception()
@@ -85,7 +162,7 @@ def chat(env_prefix: str, deployment: str, temperature: float, system_prompt: st
 
             console.print(f"[bold green]Assistant:[/bold green] {assistant_content}\n")
 
-            # Append assistant message
+            # Append assistant message to conversation history
             messages.append(AIMessage(content=assistant_content))
 
         except KeyboardInterrupt:
