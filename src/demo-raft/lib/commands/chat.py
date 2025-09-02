@@ -25,7 +25,7 @@ from lib.utils.raft_llm import create_langchain_chat_model
 @click.option("--search-top-k", default=3, type=int, help="Number of search results to retrieve and include as context")
 @click.option("--deployment", "-d", default=None, help="Override the <PREFIX>_AZURE_OPENAI_DEPLOYMENT from the environment")
 @click.option("--temperature", "-t", default=0.0, type=float, help="Sampling temperature (honored by the helper client if applicable)")
-@click.option("--system-prompt", default="You are a helpful assistant.", help="System prompt for the chat")
+@click.option("--system-prompt", default="The following is a conversation with an AI assistant. The assistant is helpful, clever, friendly and gives concise and accurate answers.", help="System prompt for the chat")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging output")
 def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int, deployment: str, temperature: float, system_prompt: str, verbose: bool):
     """
