@@ -50,15 +50,11 @@ def chat(deployment: str, temperature: float, system_prompt: str, verbose: bool)
 
     console.print(f"🟢 Starting chat with baseline deployment [bold]{model}[/bold]")
 
-    # Start conversation
-    try:
-        # import message types from langchain for structured messages
-        from langchain.schema import HumanMessage, SystemMessage, AIMessage
-    except Exception:
-        # If langchain isn't available, still allow the client to be called with raw strings
-        HumanMessage = SystemMessage = AIMessage = None
+    # Import message types from langchain (assume available)
+    from langchain.schema import HumanMessage, SystemMessage, AIMessage
 
-    messages = [SystemMessage(content=system_prompt) if SystemMessage else {"role": "system", "content": system_prompt}]
+    # Start conversation
+    messages = [SystemMessage(content=system_prompt)]
     console.print("\nType messages and press Enter. Type '/exit' or Ctrl+C to quit.\n")
 
     while True:
@@ -71,29 +67,14 @@ def chat(deployment: str, temperature: float, system_prompt: str, verbose: bool)
                 console.print("👋 Exiting chat.")
                 break
 
-            # Build message depending on whether langchain message classes are available
-            if HumanMessage:
-                messages.append(HumanMessage(content=user_input))
-            else:
-                messages.append({"role": "user", "content": user_input})
+            # Append user message
+            messages.append(HumanMessage(content=user_input))
 
             # Try the high-level predict_messages API if available
             assistant_content = None
             try:
-                if hasattr(llm, "predict_messages"):
-                    response = llm.predict_messages(messages)
-                    assistant_content = getattr(response, "content", str(response))
-                else:
-                    # Fallback to calling the model directly
-                    result = llm(messages)
-                    if hasattr(result, "generations") and result.generations:
-                        gen = result.generations[0][0]
-                        if hasattr(gen, "text") and gen.text:
-                            assistant_content = gen.text
-                        elif hasattr(gen, "message") and hasattr(gen.message, "content"):
-                            assistant_content = gen.message.content
-                    if assistant_content is None:
-                        assistant_content = str(result)
+                response = llm(messages)
+                assistant_content = response.content
             except Exception as e:
                 logger.error(f"Error generating assistant response: {e}")
                 console.print_exception()
@@ -101,10 +82,8 @@ def chat(deployment: str, temperature: float, system_prompt: str, verbose: bool)
 
             console.print(f"[bold green]Assistant:[/bold green] {assistant_content}\n")
 
-            if AIMessage:
-                messages.append(AIMessage(content=assistant_content))
-            else:
-                messages.append({"role": "assistant", "content": assistant_content})
+            # Append assistant message
+            messages.append(AIMessage(content=assistant_content))
 
         except KeyboardInterrupt:
             console.print("\n👋 Exiting chat.")
