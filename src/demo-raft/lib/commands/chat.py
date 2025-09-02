@@ -19,8 +19,9 @@ from typing import Dict, Any, Optional
 import rich_click as click
 from rich.table import Table
 from rich.prompt import Prompt
+import os
 
-from lib.shared import console, setup_environment
+from lib.shared import console, setup_environment, logger
 
 # Optional LangChain schema imports (not required, used for message types)
 try:
@@ -70,6 +71,7 @@ def create_new_chat(name: str, initial_endpoint: str = "finetune") -> Dict[str, 
     }
     chats[chat_id] = chat
     save_chats(chats)
+    logger.debug("Created chat id=%s name=%s endpoint=%s", chat_id, name, chat["endpoint"])
     return chat
 
 
@@ -97,9 +99,16 @@ def _safe_create_client_for(endpoint: str):
     else:
         raise click.ClickException("Unsupported endpoint. Use 'finetune' or 'baseline'.")
 
+    # Log which env keys exist for the chosen prefix (keys only, not values)
+    env_keys = [k for k in os.environ.keys() if k.startswith(pref + "_")]
+    logger.debug("_safe_create_client_for: trying prefix=%s for endpoint=%s; env_keys=%s", pref, endpoint, env_keys)
+
     try:
-        return create_client(pref)
+        client, model = create_client(pref)
+        logger.debug("create_client returned client=%s model=%s for prefix=%s", type(client), model, pref)
+        return (client, model)
     except Exception as e:
+        logger.exception("create_client failed for prefix %s: %s", pref, e)
         raise click.ClickException(f"Failed to create client for endpoint '{endpoint}' using prefix '{pref}': {e}")
 
 
@@ -158,6 +167,7 @@ def open_chat_tui(chat: Dict[str, Any]) -> None:
                     new_ep = "baseline" if current_endpoint == "finetune" else "finetune"
                 current_endpoint = new_ep
                 chat["endpoint"] = current_endpoint
+                logger.debug("Switched endpoint for chat %s to %s", chat.get("id"), current_endpoint)
                 console.print(f"Switched endpoint to [bold]{current_endpoint}[/bold]")
                 # persist the endpoint change immediately
                 chats = load_chats()
@@ -197,9 +207,12 @@ def open_chat_tui(chat: Dict[str, Any]) -> None:
         # Call the selected endpoint using the shared create_client helper
         try:
             client, model = _safe_create_client_for(current_endpoint)
+            logger.debug("Sending %d messages to model %s on endpoint %s", len(msgs_for_api), model, current_endpoint)
 
             # The tests helper returns an OpenAI/AzureOpenAI client which exposes chat.completions.create
             response = client.chat.completions.create(model=model, messages=msgs_for_api)
+
+            logger.debug("Received response object: %s", type(response))
 
             assistant_content = None
             try:
@@ -212,8 +225,13 @@ def open_chat_tui(chat: Dict[str, Any]) -> None:
                     assistant_content = None
 
             if not assistant_content:
+                logger.debug("No assistant content found in response: %s", response)
                 console.print("[red]No reply from model (empty response).[/red]")
                 continue
+
+            # Log only a truncated preview to avoid spamming secrets
+            preview = (assistant_content[:200] + '...') if len(assistant_content) > 200 else assistant_content
+            logger.debug("Assistant reply preview: %s", preview)
 
             assistant_msg = {
                 "role": "assistant",
@@ -232,8 +250,10 @@ def open_chat_tui(chat: Dict[str, Any]) -> None:
             console.print(f"\n[green]{assistant_content}[/green]\n")
 
         except click.ClickException as ce:
+            logger.exception("ClickException while calling model: %s", ce)
             console.print(f"[red]{ce}[/red]")
         except Exception as e:
+            logger.exception("Unexpected error while calling model: %s", e)
             console.print(f"[red]Error calling model: {e}[/red]")
 
 
