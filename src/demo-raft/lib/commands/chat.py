@@ -206,6 +206,9 @@ def chat(env_prefix: str, use_search: bool, search_index: str, search_top_k: int
             # Append assistant message to conversation history
             messages.append(AIMessage(content=assistant_content))
 
+        except EOFError:
+            console.print("\n👋 Exiting chat.")
+            break
         except KeyboardInterrupt:
             console.print("\n👋 Exiting chat.")
             break
