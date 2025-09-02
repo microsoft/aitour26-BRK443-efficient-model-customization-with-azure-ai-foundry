@@ -4,7 +4,7 @@ from azure.identity import get_bearer_token_provider
 from os import getenv
 import os
 import logging
-from langchain.chat_models import ChatOpenAI, AzureChatOpenAI
+from langchain_openai import ChatOpenAI, AzureChatOpenAI
 
 logger = logging.getLogger("raft_cli")
 
