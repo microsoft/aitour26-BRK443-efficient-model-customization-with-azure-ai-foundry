@@ -33,7 +33,10 @@ Instead, we recommend the "Cooking demo" approach:
 | Resources          | Links                            | Description |
 |-------------------|----------------------------------|-------------------|
 | Session Delivery Deck   |  [Deck-TBD](https://aka.ms/) |  The Powerpoint slides for this breakout.|
-| Session Delivery Recording | [Video-TBD](https://aka.ms/) | Recorded version of talk with tips for delivery.  |
+| Session Delivery Recording (End to end) | [Video-TBD](https://aka.ms/) | Recorded version of talk with tips for delivery.  |
+| Demo Recording - SFT | [Video-TBD](https://aka.ms/) |  |
+| Demo Recording - Distillation | [Video-TBD](https://aka.ms/) |  |
+| Demo Recording - RAFT | [Video-TBD](https://aka.ms/) |  |
 | Demo Setup Guide |[Demo-TBD](https://aka.ms/)  | Guide to setting up and reproducing demos yourself if necessary. (We provide pre-recorded videos) |
 | | |
 
