@@ -7,6 +7,7 @@ Command for fine-tuning models using generated datasets.
 import json
 import logging
 import os
+import time
 import tiktoken
 from typing import Optional
 
@@ -67,17 +68,42 @@ def calculate_training_cost(training_file_path: str, model_name: str, num_epochs
     return num_tokens, total_cost
 
 
+def wait_for_file_processing(client: AzureOpenAI, file_id: str, timeout: int = 300, poll_interval: int = 5) -> bool:
+    """
+    Poll the Azure OpenAI file resource until the file import is completed.
+    Raises a ClickException on failure or timeout.
+    """
+    logger.info(f"⏳ Waiting for file {file_id} to be processed (timeout {timeout}s)")
+    elapsed = 0
+    while elapsed < timeout:
+        try:
+            file_obj = client.files.retrieve(file_id)
+            # Support both dict-like and attribute access objects
+            status = None
+            if isinstance(file_obj, dict):
+                status = file_obj.get("status")
+            else:
+                status = getattr(file_obj, "status", None)
+        except Exception as e:
+            logger.debug(f"Failed to fetch file status for {file_id}: {e}")
+            status = None
+
+        logger.debug(f"File {file_id} status: {status}")
+        if status and str(status).lower() in ("processed", "uploaded", "succeeded", "available", "ready"):
+            logger.info(f"✅ File {file_id} processed (status={status})")
+            return True
+        if status and str(status).lower() in ("error", "failed"):
+            raise click.ClickException(f"File import failed for {file_id}: status={status}")
+
+        time.sleep(poll_interval)
+        elapsed += poll_interval
+
+    raise click.ClickException(f"Timeout waiting for file {file_id} to finish processing")
+
+
 def upload_training_files(client: AzureOpenAI, training_file_path: str, validation_file_path: str) -> tuple:
     """
-    Upload training and validation files to Azure OpenAI.
-    
-    Args:
-        client: Azure OpenAI client
-        training_file_path: Path to training data
-        validation_file_path: Path to validation data
-        
-    Returns:
-        Tuple of (training_file_id, validation_file_id)
+    Upload training and validation files to Azure OpenAI and wait for imports to complete.
     """
     logger.info("📤 Uploading training files to Azure OpenAI")
     
@@ -87,6 +113,9 @@ def upload_training_files(client: AzureOpenAI, training_file_path: str, validati
         training_response = client.files.create(file=f, purpose="fine-tune")
     training_file_id = training_response.id
     logger.info(f"✅ Training file uploaded with ID: {training_file_id}")
+
+    # Wait for training file to be processed
+    wait_for_file_processing(client, training_file_id)
     
     # Upload validation file
     logger.info(f"📁 Uploading validation file: {validation_file_path}")
@@ -94,6 +123,9 @@ def upload_training_files(client: AzureOpenAI, training_file_path: str, validati
         validation_response = client.files.create(file=f, purpose="fine-tune")
     validation_file_id = validation_response.id
     logger.info(f"✅ Validation file uploaded with ID: {validation_file_id}")
+
+    # Wait for validation file to be processed
+    wait_for_file_processing(client, validation_file_id)
     
     return training_file_id, validation_file_id
 
