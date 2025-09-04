@@ -237,7 +237,7 @@ def create_finetuning_job(
     # Build a friendly job name that includes the dataset name and a short hash
     ds_label = dataset_name or os.getenv("DATASET_NAME") or os.path.splitext(os.path.basename(training_file_id))[0]
     ds_label = ds_label.replace(" ", "-") if ds_label else "dataset"
-    job_name_suffix = f"raft-{ds_label}"
+    job_name_suffix = f"{ds_label}"
 
     response = client.fine_tuning.jobs.create(
         training_file=training_file_id,
