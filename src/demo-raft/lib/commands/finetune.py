@@ -103,12 +103,21 @@ def find_existing_file(client: AzureOpenAI, local_path: str, expected_filename: 
         logger.debug(f"Failed to list Azure files: {e}")
         return None, None
 
+    seen_ids = set()
     for f in files_iter:
         name = f.filename or f.name
         size = f.bytes or f.size
         purpose = f.purpose
         status = f.status
         fid = f.id
+
+        # protect against paginators that may repeat the last page
+        if fid in seen_ids:
+            logger.debug(f"Encountered duplicate file id {fid}; stopping iteration")
+            break
+        seen_ids.add(fid)
+
+        logger.debug(f"Found Azure file: {name} (id={fid}, status={status})")
 
         if not name or purpose != "fine-tune":
             continue
