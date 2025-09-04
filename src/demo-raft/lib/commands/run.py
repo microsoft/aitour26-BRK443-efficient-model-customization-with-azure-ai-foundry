@@ -18,6 +18,7 @@ from lib.commands.check import check
 from lib.commands.gen import gen
 from lib.commands.deploy import deploy
 from lib.commands.eval import eval as eval_cmd
+from lib.commands.finetune import finetune
 
 
 @click.command()
@@ -35,6 +36,7 @@ from lib.commands.eval import eval as eval_cmd
 @click.option("--skip-setup", is_flag=True, help="Skip RAFT repository setup in gen phase")
 @click.option("--skip-check", is_flag=True, help="Skip infrastructure endpoint verification")
 @click.option("--skip-gen", is_flag=True, help="Skip dataset generation (use existing dataset)")
+@click.option("--skip-finetune", is_flag=True, help="Skip model fine-tuning step")
 @click.option("--skip-deploy", is_flag=True, help="Skip model deployment")
 @click.option("--skip-eval", is_flag=True, help="Skip model evaluation")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging output")
@@ -50,12 +52,13 @@ def run(
     skip_setup: bool,
     skip_check: bool,
     skip_gen: bool,
+    skip_finetune: bool,
     skip_deploy: bool,
     skip_eval: bool,
     verbose: bool
 ):
     """
-    Run the complete RAFT workflow [cyan]check[/cyan] → [cyan]gen[/cyan] → [cyan]deploy[/cyan] → [cyan]eval[/cyan].
+    Run the complete RAFT workflow [cyan]check[/cyan] → [cyan]gen[/cyan] → [cyan]finetune[/cyan] → [cyan]deploy[/cyan] → [cyan]eval[/cyan].
 
     This command orchestrates the entire RAFT process by executing multiple
     subcommands in sequence. It provides a streamlined way to go from raw
@@ -64,8 +67,9 @@ def run(
     [bold yellow]Workflow Steps:[/bold yellow]
     [dim]1.[/dim] [cyan]check[/cyan] - Verify Azure AI endpoints are accessible
     [dim]2.[/dim] [cyan]gen[/cyan] - Generate synthetic training dataset from documents
-    [dim]3.[/dim] [cyan]deploy[/cyan] - Deploy and fine-tune the model
-    [dim]4.[/dim] [cyan]eval[/cyan] - Evaluate the fine-tuned model performance
+    [dim]3.[/dim] [cyan]finetune[/cyan] - Fine-tune a student model using generated dataset
+    [dim]4.[/dim] [cyan]deploy[/cyan] - Deploy and fine-tune the model
+    [dim]5.[/dim] [cyan]eval[/cyan] - Evaluate the fine-tuned model performance
     
     [bold yellow]Skip Options:[/bold yellow]
     Use [cyan]--skip-*[/cyan] flags to skip specific steps if you want to resume
@@ -73,7 +77,7 @@ def run(
     
     [bold green]Example:[/bold green]
     [cyan]raft run --ds-name my-dataset --raft-questions 3[/cyan]
-    [cyan]raft run --skip-check --skip-gen  # Skip to deploy & eval[/cyan]
+    [cyan]raft run --skip-check --skip-gen  # Skip to finetune, deploy & eval[/cyan]
     """
     # Configure logging level
     if verbose:
@@ -90,8 +94,9 @@ def run(
     
     workflow_table.add_row("1", "check", "⏭️ Skipped" if skip_check else "⏳ Pending")
     workflow_table.add_row("2", "gen", "⏭️ Skipped" if skip_gen else "⏳ Pending")
-    workflow_table.add_row("3", "deploy", "⏭️ Skipped" if skip_deploy else "⏳ Pending")
-    workflow_table.add_row("4", "eval", "⏭️ Skipped" if skip_eval else "⏳ Pending")
+    workflow_table.add_row("3", "finetune", "⏭️ Skipped" if skip_finetune else "⏳ Pending")
+    workflow_table.add_row("4", "deploy", "⏭️ Skipped" if skip_deploy else "⏳ Pending")
+    workflow_table.add_row("5", "eval", "⏭️ Skipped" if skip_eval else "⏳ Pending")
     
     console.print(workflow_table)
     console.print()
@@ -99,7 +104,7 @@ def run(
     try:
         step_count = 0
         completed_steps = 0
-        total_steps = sum(1 for skip in [skip_check, skip_gen, skip_deploy, skip_eval] if not skip)
+        total_steps = sum(1 for skip in [skip_check, skip_gen, skip_finetune, skip_deploy, skip_eval] if not skip)
         
         # Step 1: Check infrastructure
         if not skip_check:
@@ -156,7 +161,24 @@ def run(
                 logger.error(f"❌ Dataset generation failed: {e}")
                 raise click.ClickException("Dataset generation failed. Please fix the issues before continuing.")
         
-        # Step 3: Deploy model
+        # Step 3: Fine-tune model
+        if not skip_finetune:
+            step_count += 1
+            console.print(f"📍 [bold]Step {step_count}/{total_steps}: Model Fine-tuning[/bold]")
+
+            # Create a new Click context for the finetune command
+            ctx = click.Context(finetune)
+            ctx.params = {'verbose': verbose}
+
+            try:
+                ctx.invoke(finetune, verbose=verbose)
+                completed_steps += 1
+                console.print("✅ Fine-tuning step completed successfully\n")
+            except Exception as e:
+                logger.error(f"❌ Fine-tuning failed: {e}")
+                raise click.ClickException("Fine-tuning failed. Please fix the issues before continuing.")
+        
+        # Step 4: Deploy model
         if not skip_deploy:
             step_count += 1
             console.print(f"📍 [bold]Step {step_count}/{total_steps}: Model Deployment[/bold]")
@@ -173,7 +195,7 @@ def run(
                 logger.error(f"❌ Model deployment failed: {e}")
                 raise click.ClickException("Model deployment failed. Please fix the issues before continuing.")
         
-        # Step 4: Evaluate model
+        # Step 5: Evaluate model
         if not skip_eval:
             step_count += 1
             console.print(f"📍 [bold]Step {step_count}/{total_steps}: Model Evaluation[/bold]")
