@@ -94,9 +94,10 @@ def run_raft_generation(
         execute_command("touch .env", description="Ensuring .env file exists")
         
         # Build the RAFT command
-        
+        # Use the current Python executable (sys.executable) rather than hardcoding 'python3'
+        python_executable = sys.executable or "python3"
         raft_command = (
-            f"python3 .gorilla/raft/raft.py "
+            f"\"{python_executable}\" .gorilla/raft/raft.py "
             f"--datapath \"{doc_path}\" "
             f"--output {ds_path} "
             f"--distractors 3 "
