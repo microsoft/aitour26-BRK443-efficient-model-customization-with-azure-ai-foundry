@@ -167,7 +167,7 @@ def upload_finetuning_file(client: AzureOpenAI, local_path: str, file_type: str 
     with open(local_path, "rb") as f:
         # include filename in the upload so it's recorded in Azure
         ft_file: FileTypes = (upload_name, f)
-        resp = client.files.create(file=ft_file, purpose="fine-tune", filename=upload_name)
+        resp = client.files.create(file=ft_file, purpose="fine-tune")
     file_id = resp.id
     logger.info(f"✅ {file_type.capitalize()} file uploaded with ID: {file_id}")
     sdk_wait_for_processing(client, file_id)
