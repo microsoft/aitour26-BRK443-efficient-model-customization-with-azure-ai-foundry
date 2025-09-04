@@ -188,7 +188,7 @@ def find_existing_finetune_job(client: AzureOpenAI, training_file_id: str, valid
         jid = job.id
         status = job.status
 
-        if t == training_file_id and v == validation_file_id and m == model_name:
+        if t == training_file_id and v == validation_file_id and m.startswith(model_name):
             logger.info(f"⚠️  Found existing fine-tuning job: {jid} (status={status})")
             return jid, status
 
