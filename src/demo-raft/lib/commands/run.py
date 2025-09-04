@@ -55,8 +55,8 @@ def run(
     verbose: bool
 ):
     """
-    Run the complete RAFT workflow from start to finish.
-    
+    Run the complete RAFT workflow [cyan]check[/cyan] → [cyan]gen[/cyan] → [cyan]deploy[/cyan] → [cyan]eval[/cyan].
+
     This command orchestrates the entire RAFT process by executing multiple
     subcommands in sequence. It provides a streamlined way to go from raw
     documents to a fine-tuned, deployed, and evaluated model.
