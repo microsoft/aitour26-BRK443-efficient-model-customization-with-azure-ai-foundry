@@ -8,14 +8,15 @@ import json
 import logging
 import os
 import time
-from litellm import FineTuningJob, SyncCursorPage
-import tiktoken
-from typing import Optional
-
-import rich_click as click
-from openai import AzureOpenAI
+import hashlib
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from rich.table import Table
+
+from typing import Optional
+
+import tiktoken
+import rich_click as click
+from openai import AzureOpenAI
 
 from lib.shared import setup_environment, console, logger, create_azure_openai_client
 from utils import update_state
@@ -175,7 +176,7 @@ def find_existing_finetune_job(client: AzureOpenAI, training_file_id: str, valid
     """
     logger.info("🔎 Searching for existing fine-tuning jobs")
     try:
-        jobs_iter: SyncCursorPage[FineTuningJob] = client.fine_tuning.jobs.list()
+        jobs_iter = client.fine_tuning.jobs.list()
     except Exception as e:
         logger.debug(f"Failed to list fine-tuning jobs: {e}")
         return None, None
@@ -200,10 +201,12 @@ def create_finetuning_job(
     training_file_id: str,
     validation_file_id: str,
     model_name: str,
-    seed: int = 105
+    seed: int = 105,
+    dataset_name: Optional[str] = None
 ) -> str:
     """
     Create a fine-tuning job, but reuse an existing matching job if one already exists.
+    The job name will include the dataset name when provided.
     """
     logger.info("🚀 Creating fine-tuning job")
 
@@ -213,11 +216,20 @@ def create_finetuning_job(
         logger.info(f"♻️  Reusing existing fine-tuning job {existing_job_id} (status={existing_status})")
         return existing_job_id
 
+    # Build a friendly job name that includes the dataset name and a short hash
+    ds_label = dataset_name or os.getenv("DATASET_NAME") or os.path.splitext(os.path.basename(training_file_id))[0]
+    ds_label = ds_label.replace(" ", "-") if ds_label else "dataset"
+    # short sha1 of the identifying tuple
+    sha_source = f"{training_file_id}|{validation_file_id}|{model_name}".encode("utf-8")
+    short_hash = hashlib.sha1(sha_source).hexdigest()[:7]
+    job_name = f"raft-{model_name}-{ds_label}-{short_hash}"
+
     response = client.fine_tuning.jobs.create(
         training_file=training_file_id,
         validation_file=validation_file_id,
         model=model_name,
-        seed=seed
+        seed=seed,
+        name=job_name
     )
     
     job_id = response.id
@@ -226,6 +238,7 @@ def create_finetuning_job(
     logger.info(f"📋 Job ID: {job_id}")
     logger.info(f"📊 Status: {response.status}")
     logger.info(f"🤖 Base model: {response.model}")
+    logger.info(f"🏷️ Job name: {job_name}")
     
     return job_id
 
@@ -338,9 +351,10 @@ def finetune(
             client, training_file_path, validation_file_path
         )
         
-        # Create fine-tuning job
+        # Create fine-tuning job (include dataset name)
+        dataset_name = os.getenv("DATASET_NAME") or os.path.splitext(os.path.basename(training_file_path))[0]
         job_id = create_finetuning_job(
-            client, training_file_id, validation_file_id, student_model_name, seed
+            client, training_file_id, validation_file_id, student_model_name, seed, dataset_name
         )
         
         # Update state with job information
