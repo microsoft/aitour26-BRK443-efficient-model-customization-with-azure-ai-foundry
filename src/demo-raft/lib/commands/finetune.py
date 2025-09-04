@@ -244,7 +244,7 @@ def create_finetuning_job(
         validation_file=validation_file_id,
         model=model_name,
         seed=seed,
-        suffix=job_name_suffix
+#        suffix=job_name_suffix
     )
     
     job_id = response.id
