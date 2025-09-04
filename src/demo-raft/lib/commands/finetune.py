@@ -228,17 +228,14 @@ def create_finetuning_job(
     # Build a friendly job name that includes the dataset name and a short hash
     ds_label = dataset_name or os.getenv("DATASET_NAME") or os.path.splitext(os.path.basename(training_file_id))[0]
     ds_label = ds_label.replace(" ", "-") if ds_label else "dataset"
-    # short sha1 of the identifying tuple
-    sha_source = f"{training_file_id}|{validation_file_id}|{model_name}".encode("utf-8")
-    short_hash = hashlib.sha1(sha_source).hexdigest()[:7]
-    job_name = f"raft-{model_name}-{ds_label}-{short_hash}"
+    job_name_suffix = f"raft-{ds_label}"
 
     response = client.fine_tuning.jobs.create(
         training_file=training_file_id,
         validation_file=validation_file_id,
         model=model_name,
         seed=seed,
-        name=job_name
+        job_name_suffix=job_name_suffix
     )
     
     job_id = response.id
@@ -247,7 +244,7 @@ def create_finetuning_job(
     logger.info(f"📋 Job ID: {job_id}")
     logger.info(f"📊 Status: {response.status}")
     logger.info(f"🤖 Base model: {response.model}")
-    logger.info(f"🏷️ Job name: {job_name}")
+    logger.info(f"🏷️ Job name suffix: {job_name_suffix}")
     
     return job_id
 
