@@ -78,7 +78,7 @@ def sdk_wait_for_processing(client: AzureOpenAI, file_id: str, timeout: int = 30
     """
     logger.info(f"⏳ Waiting (via SDK helper) for file {file_id} to be processed (timeout {timeout}s)")
     try:
-        client.files.wait_for_processing(file_id, timeout=timeout)
+        client.files.wait_for_processing(file_id, max_wait_seconds=timeout)
         logger.info(f"✅ File {file_id} processed (via SDK helper)")
     except Exception as e:
         logger.debug(f"SDK wait_for_processing failed for {file_id}: {e}")
