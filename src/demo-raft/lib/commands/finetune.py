@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import time
+from litellm import FineTuningJob, SyncCursorPage
 import tiktoken
 from typing import Optional
 
@@ -108,11 +109,11 @@ def find_existing_file(client: AzureOpenAI, local_path: str):
             status = f.get("status")
             fid = f.get("id")
         else:
-            name = getattr(f, "filename", None) or getattr(f, "name", None)
-            size = getattr(f, "bytes", None) or getattr(f, "size", None)
-            purpose = getattr(f, "purpose", None)
-            status = getattr(f, "status", None)
-            fid = getattr(f, "id", None)
+            name = f.filename or f.name
+            size = f.bytes or f.size
+            purpose = f.purpose
+            status = f.status
+            fid = f.id
 
         if not name or purpose != "fine-tune":
             continue
@@ -167,6 +168,33 @@ def upload_training_files(client: AzureOpenAI, training_file_path: str, validati
     return training_file_id, validation_file_id
 
 
+def find_existing_finetune_job(client: AzureOpenAI, training_file_id: str, validation_file_id: str, model_name: str):
+    """
+    Search existing fine-tuning jobs for a job that matches the training/validation file IDs and model.
+    Returns (job_id, status) or (None, None).
+    """
+    logger.info("🔎 Searching for existing fine-tuning jobs")
+    try:
+        jobs_iter: SyncCursorPage[FineTuningJob] = client.fine_tuning.jobs.list()
+    except Exception as e:
+        logger.debug(f"Failed to list fine-tuning jobs: {e}")
+        return None, None
+
+    for job in jobs_iter:
+
+        t = job.training_file
+        v = job.validation_file
+        m = job.model
+        jid = job.id
+        status = job.status
+
+        if t == training_file_id and v == validation_file_id and m == model_name:
+            logger.info(f"⚠️  Found existing fine-tuning job: {jid} (status={status})")
+            return jid, status
+
+    return None, None
+
+
 def create_finetuning_job(
     client: AzureOpenAI,
     training_file_id: str,
@@ -175,20 +203,16 @@ def create_finetuning_job(
     seed: int = 105
 ) -> str:
     """
-    Create a fine-tuning job.
-    
-    Args:
-        client: Azure OpenAI client
-        training_file_id: ID of the uploaded training file
-        validation_file_id: ID of the uploaded validation file
-        model_name: Name of the base model to fine-tune
-        seed: Random seed for reproducibility
-        
-    Returns:
-        Job ID of the created fine-tuning job
+    Create a fine-tuning job, but reuse an existing matching job if one already exists.
     """
     logger.info("🚀 Creating fine-tuning job")
-    
+
+    # Check if an equivalent job already exists
+    existing_job_id, existing_status = find_existing_finetune_job(client, training_file_id, validation_file_id, model_name)
+    if existing_job_id:
+        logger.info(f"♻️  Reusing existing fine-tuning job {existing_job_id} (status={existing_status})")
+        return existing_job_id
+
     response = client.fine_tuning.jobs.create(
         training_file=training_file_id,
         validation_file=validation_file_id,
