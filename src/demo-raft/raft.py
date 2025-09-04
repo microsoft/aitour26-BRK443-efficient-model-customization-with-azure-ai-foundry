@@ -55,9 +55,9 @@ logging.basicConfig(
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("azure.core.pipeline.policies").setLevel(logging.WARNING)
 
-@click.group(chain=True)
+@click.group(chain=True, context_settings={"show_default": True})
 @click.version_option(version="1.0.0", prog_name="RAFT CLI")
-@click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
+@click.option("--verbose", "-v", is_flag=True, default=False, show_default=True, help="Enable verbose logging")
 def cli(verbose):
     """
     [bold blue]RAFT CLI[/bold blue] - [italic]Retrieval Augmented Fine Tuning toolkit[/italic]
