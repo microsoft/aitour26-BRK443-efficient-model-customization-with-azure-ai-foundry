@@ -68,37 +68,17 @@ def calculate_training_cost(training_file_path: str, model_name: str, num_epochs
     return num_tokens, total_cost
 
 
-def wait_for_file_processing(client: AzureOpenAI, file_id: str, timeout: int = 300, poll_interval: int = 5) -> bool:
+def sdk_wait_for_processing(client: AzureOpenAI, file_id: str, timeout: int = 300) -> None:
     """
-    Poll the Azure OpenAI file resource until the file import is completed.
-    Raises a ClickException on failure or timeout.
+    Call the SDK's Files.wait_for_processing helper once and raise a ClickException on error.
     """
-    logger.info(f"⏳ Waiting for file {file_id} to be processed (timeout {timeout}s)")
-    elapsed = 0
-    while elapsed < timeout:
-        try:
-            file_obj = client.files.retrieve(file_id)
-            # Support both dict-like and attribute access objects
-            status = None
-            if isinstance(file_obj, dict):
-                status = file_obj.get("status")
-            else:
-                status = getattr(file_obj, "status", None)
-        except Exception as e:
-            logger.debug(f"Failed to fetch file status for {file_id}: {e}")
-            status = None
-
-        logger.debug(f"File {file_id} status: {status}")
-        if status and str(status).lower() in ("processed", "uploaded", "succeeded", "available", "ready"):
-            logger.info(f"✅ File {file_id} processed (status={status})")
-            return True
-        if status and str(status).lower() in ("error", "failed"):
-            raise click.ClickException(f"File import failed for {file_id}: status={status}")
-
-        time.sleep(poll_interval)
-        elapsed += poll_interval
-
-    raise click.ClickException(f"Timeout waiting for file {file_id} to finish processing")
+    logger.info(f"⏳ Waiting (via SDK helper) for file {file_id} to be processed (timeout {timeout}s)")
+    try:
+        client.files.wait_for_processing(file_id, timeout=timeout)
+        logger.info(f"✅ File {file_id} processed (via SDK helper)")
+    except Exception as e:
+        logger.debug(f"SDK wait_for_processing failed for {file_id}: {e}")
+        raise click.ClickException(f"File import failed or wait helper errored for {file_id}: {e}")
 
 
 def find_existing_file(client: AzureOpenAI, local_path: str):
@@ -152,7 +132,7 @@ def upload_training_files(client: AzureOpenAI, training_file_path: str, validati
     """
     Upload training and validation files to Azure OpenAI and wait for imports to complete.
     If a file with the same name/size already exists in the Azure account (purpose="fine-tune"),
-    reuse it instead of re-uploading.
+    reuse it instead of re-uploading. Use the SDK Files.wait_for_processing helper directly.
     """
     logger.info("📤 Uploading training files to Azure OpenAI")
     
@@ -161,28 +141,28 @@ def upload_training_files(client: AzureOpenAI, training_file_path: str, validati
     if training_file_id:
         logger.info(f"📁 Reusing existing training file: {training_file_id}")
         if training_status and str(training_status).lower() not in ("processed", "uploaded", "succeeded", "available", "ready"):
-            wait_for_file_processing(client, training_file_id)
+            sdk_wait_for_processing(client, training_file_id)
     else:
         logger.info(f"📁 Uploading training file: {training_file_path}")
         with open(training_file_path, "rb") as f:
             training_response = client.files.create(file=f, purpose="fine-tune")
         training_file_id = training_response.id
         logger.info(f"✅ Training file uploaded with ID: {training_file_id}")
-        wait_for_file_processing(client, training_file_id)
+        sdk_wait_for_processing(client, training_file_id)
 
     # --- Validation file: check for existing ---
     validation_file_id, validation_status = find_existing_file(client, validation_file_path)
     if validation_file_id:
         logger.info(f"📁 Reusing existing validation file: {validation_file_id}")
         if validation_status and str(validation_status).lower() not in ("processed", "uploaded", "succeeded", "available", "ready"):
-            wait_for_file_processing(client, validation_file_id)
+            sdk_wait_for_processing(client, validation_file_id)
     else:
         logger.info(f"📁 Uploading validation file: {validation_file_path}")
         with open(validation_file_path, "rb") as f:
             validation_response = client.files.create(file=f, purpose="fine-tune")
         validation_file_id = validation_response.id
         logger.info(f"✅ Validation file uploaded with ID: {validation_file_id}")
-        wait_for_file_processing(client, validation_file_id)
+        sdk_wait_for_processing(client, validation_file_id)
 
     return training_file_id, validation_file_id
 
