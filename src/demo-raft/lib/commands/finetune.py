@@ -10,6 +10,7 @@ import os
 import time
 import hashlib
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from litellm import FileTypes
 from rich.table import Table
 
 from typing import Optional
@@ -83,10 +84,11 @@ def sdk_wait_for_processing(client: AzureOpenAI, file_id: str, timeout: int = 30
         raise click.ClickException(f"File import failed or wait helper errored for {file_id}: {e}")
 
 
-def find_existing_file(client: AzureOpenAI, local_path: str):
+def find_existing_file(client: AzureOpenAI, local_path: str, expected_filename: Optional[str] = None):
     """
-    Look for an already uploaded file in Azure OpenAI that matches the local file name
-    and (when available) size. Returns (file_id, status) or (None, None).
+    Look for an already uploaded file in Azure OpenAI that matches either the
+    expected_filename (preferred) or the local file basename and size.
+    Returns (file_id, status) or (None, None).
     """
     basename = os.path.basename(local_path)
     try:
@@ -102,25 +104,21 @@ def find_existing_file(client: AzureOpenAI, local_path: str):
         return None, None
 
     for f in files_iter:
-        # Support dict-like and attribute access
-        if isinstance(f, dict):
-            name = f.get("filename") or f.get("name")
-            size = f.get("bytes") or f.get("size")
-            purpose = f.get("purpose")
-            status = f.get("status")
-            fid = f.get("id")
-        else:
-            name = f.filename or f.name
-            size = f.bytes or f.size
-            purpose = f.purpose
-            status = f.status
-            fid = f.id
+        name = f.filename or f.name
+        size = f.bytes or f.size
+        purpose = f.purpose
+        status = f.status
+        fid = f.id
 
         if not name or purpose != "fine-tune":
             continue
 
-        # Match by filename and optionally by size
+        # If expected_filename provided, prefer exact match on that
         try:
+            if expected_filename and name == expected_filename:
+                logger.info(f"⚠️  Found existing Azure file by expected name: {name} (id={fid}, status={status})")
+                return fid, status
+            # Otherwise fall back to basename + size match
             if name == basename and (local_size is None or size == local_size):
                 logger.info(f"⚠️  Found existing Azure file: {name} (id={fid}, status={status})")
                 return fid, status
@@ -135,17 +133,32 @@ def upload_finetuning_file(client: AzureOpenAI, local_path: str, file_type: str 
     Upload or reuse a single fine-tuning file. Returns the Azure file id.
     file_type should be 'training' or 'validation' and is used in logs.
     """
-    logger.info(f"🔁 Processing {file_type} fine-tuning file: {local_path}")
-    file_id, status = find_existing_file(client, local_path)
+    logger.info(f"🔁 Processing {file_type} file: {local_path}")
+
+    # compute short sha1 of file content to include in uploaded filename
+    sha = hashlib.sha1()
+    with open(local_path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(8192), b""):
+            sha.update(chunk)
+    short_hash = sha.hexdigest()[:7]
+    # include dataset name if present
+    ds_label = os.getenv("DATASET_NAME") or os.path.basename(os.path.dirname(local_path)) or "dataset"
+    ds_label = ds_label.replace(" ", "-")
+    upload_name = f"raft-{ds_label}-{file_type}-{short_hash}"
+
+    # Check for an existing file matching the upload_name first
+    file_id, status = find_existing_file(client, local_path, expected_filename=upload_name)
     if file_id:
         logger.info(f"📁 Reusing existing {file_type} file: {file_id}")
         if status and str(status).lower() not in ("processed", "uploaded", "succeeded", "available", "ready"):
             sdk_wait_for_processing(client, file_id)
         return file_id
 
-    logger.info(f"📁 Uploading {file_type} file: {local_path}")
+    logger.info(f"📁 Uploading {file_type} file: {local_path} as {upload_name}")
     with open(local_path, "rb") as f:
-        resp = client.files.create(file=f, purpose="fine-tune")
+        # include filename in the upload so it's recorded in Azure
+        ft_file: FileTypes = (upload_name, f)
+        resp = client.files.create(file=ft_file, purpose="fine-tune", filename=upload_name)
     file_id = resp.id
     logger.info(f"✅ {file_type.capitalize()} file uploaded with ID: {file_id}")
     sdk_wait_for_processing(client, file_id)
