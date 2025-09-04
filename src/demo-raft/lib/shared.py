@@ -47,8 +47,8 @@ def execute_command(
     """
     if description:
         logger.info(f"🔄 {description}")
-    else:
-        logger.info(f"🔄 Executing: {command}")
+
+    logger.debug(f"🔄 Executing: {command}")
     
     # Prepare environment
     env = os.environ.copy()

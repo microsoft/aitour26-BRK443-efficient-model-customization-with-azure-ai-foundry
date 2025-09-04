@@ -4,28 +4,22 @@ RAFT Dataset Generation Command
 Command for generating synthetic datasets using RAFT methodology.
 """
 
-import json
 import os
-import subprocess
 import sys
 import logging
 from math import ceil
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Tuple
 
 import rich_click as click
 import numpy as np
 import pandas as pd
-from dotenv import load_dotenv
-from dotenv_azd import load_azd_env
-from rich.console import Console
-from rich.logging import RichHandler
 from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
 from rich.text import Text
 
 from lib.shared import execute_command, setup_environment, console, logger
-from utils import get_env_state_file, update_state
+from utils import get_state_env, update_state
 
 
 def setup_gen_environment() -> Tuple[str, str]:
@@ -100,12 +94,9 @@ def run_raft_generation(
         execute_command("touch .env", description="Ensuring .env file exists")
         
         # Build the RAFT command
-        env_files = f".env {get_env_state_file()}"
-        if azure_env_file and Path(azure_env_file).exists():
-            env_files += f" {azure_env_file}"
         
         raft_command = (
-            f"env $(cat {env_files}) python3 .gorilla/raft/raft.py "
+            f"python3 .gorilla/raft/raft.py "
             f"--datapath \"{doc_path}\" "
             f"--output {ds_path} "
             f"--distractors 3 "
@@ -122,7 +113,8 @@ def run_raft_generation(
         
         return_code, stdout, stderr = execute_command(
             raft_command,
-            description=f"Generating {qa_threshold} Q&A pairs using RAFT"
+            description=f"Generating {qa_threshold} Q&A pairs using RAFT",
+            env_vars=get_state_env()
         )
         
         progress.update(task, completed=True)
