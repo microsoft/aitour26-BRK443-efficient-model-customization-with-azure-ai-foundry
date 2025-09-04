@@ -101,32 +101,89 @@ def wait_for_file_processing(client: AzureOpenAI, file_id: str, timeout: int = 3
     raise click.ClickException(f"Timeout waiting for file {file_id} to finish processing")
 
 
+def find_existing_file(client: AzureOpenAI, local_path: str):
+    """
+    Look for an already uploaded file in Azure OpenAI that matches the local file name
+    and (when available) size. Returns (file_id, status) or (None, None).
+    """
+    basename = os.path.basename(local_path)
+    try:
+        local_size = os.path.getsize(local_path)
+    except OSError:
+        local_size = None
+
+    logger.info(f"🔎 Checking for existing Azure file: {basename}")
+    try:
+        files_iter = client.files.list()
+    except Exception as e:
+        logger.debug(f"Failed to list Azure files: {e}")
+        return None, None
+
+    for f in files_iter:
+        # Support dict-like and attribute access
+        if isinstance(f, dict):
+            name = f.get("filename") or f.get("name")
+            size = f.get("bytes") or f.get("size")
+            purpose = f.get("purpose")
+            status = f.get("status")
+            fid = f.get("id")
+        else:
+            name = getattr(f, "filename", None) or getattr(f, "name", None)
+            size = getattr(f, "bytes", None) or getattr(f, "size", None)
+            purpose = getattr(f, "purpose", None)
+            status = getattr(f, "status", None)
+            fid = getattr(f, "id", None)
+
+        if not name or purpose != "fine-tune":
+            continue
+
+        # Match by filename and optionally by size
+        try:
+            if name == basename and (local_size is None or size == local_size):
+                logger.info(f"⚠️  Found existing Azure file: {name} (id={fid}, status={status})")
+                return fid, status
+        except Exception:
+            continue
+
+    return None, None
+
+
 def upload_training_files(client: AzureOpenAI, training_file_path: str, validation_file_path: str) -> tuple:
     """
     Upload training and validation files to Azure OpenAI and wait for imports to complete.
+    If a file with the same name/size already exists in the Azure account (purpose="fine-tune"),
+    reuse it instead of re-uploading.
     """
     logger.info("📤 Uploading training files to Azure OpenAI")
     
-    # Upload training file
-    logger.info(f"📁 Uploading training file: {training_file_path}")
-    with open(training_file_path, "rb") as f:
-        training_response = client.files.create(file=f, purpose="fine-tune")
-    training_file_id = training_response.id
-    logger.info(f"✅ Training file uploaded with ID: {training_file_id}")
+    # --- Training file: check for existing ---
+    training_file_id, training_status = find_existing_file(client, training_file_path)
+    if training_file_id:
+        logger.info(f"📁 Reusing existing training file: {training_file_id}")
+        if training_status and str(training_status).lower() not in ("processed", "uploaded", "succeeded", "available", "ready"):
+            wait_for_file_processing(client, training_file_id)
+    else:
+        logger.info(f"📁 Uploading training file: {training_file_path}")
+        with open(training_file_path, "rb") as f:
+            training_response = client.files.create(file=f, purpose="fine-tune")
+        training_file_id = training_response.id
+        logger.info(f"✅ Training file uploaded with ID: {training_file_id}")
+        wait_for_file_processing(client, training_file_id)
 
-    # Wait for training file to be processed
-    wait_for_file_processing(client, training_file_id)
-    
-    # Upload validation file
-    logger.info(f"📁 Uploading validation file: {validation_file_path}")
-    with open(validation_file_path, "rb") as f:
-        validation_response = client.files.create(file=f, purpose="fine-tune")
-    validation_file_id = validation_response.id
-    logger.info(f"✅ Validation file uploaded with ID: {validation_file_id}")
+    # --- Validation file: check for existing ---
+    validation_file_id, validation_status = find_existing_file(client, validation_file_path)
+    if validation_file_id:
+        logger.info(f"📁 Reusing existing validation file: {validation_file_id}")
+        if validation_status and str(validation_status).lower() not in ("processed", "uploaded", "succeeded", "available", "ready"):
+            wait_for_file_processing(client, validation_file_id)
+    else:
+        logger.info(f"📁 Uploading validation file: {validation_file_path}")
+        with open(validation_file_path, "rb") as f:
+            validation_response = client.files.create(file=f, purpose="fine-tune")
+        validation_file_id = validation_response.id
+        logger.info(f"✅ Validation file uploaded with ID: {validation_file_id}")
+        wait_for_file_processing(client, validation_file_id)
 
-    # Wait for validation file to be processed
-    wait_for_file_processing(client, validation_file_id)
-    
     return training_file_id, validation_file_id
 
 
