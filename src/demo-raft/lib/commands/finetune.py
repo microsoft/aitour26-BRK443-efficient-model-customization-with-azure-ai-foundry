@@ -9,6 +9,7 @@ import logging
 import os
 import time
 import hashlib
+from pathlib import Path
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from litellm import FileTypes
 from rich.table import Table
@@ -153,7 +154,9 @@ def upload_finetuning_file(client: AzureOpenAI, local_path: str, file_type: str 
     # include dataset name if present
     ds_label = os.getenv("DATASET_NAME") or os.path.basename(os.path.dirname(local_path)) or "dataset"
     ds_label = ds_label.replace(" ", "-")
-    upload_name = f"raft-{ds_label}-{file_type}-{short_hash}"
+    # Preserve original file extension in the uploaded filename
+    ext = Path(local_path).suffix or ""
+    upload_name = f"raft-{ds_label}-{file_type}-{short_hash}{ext}"
 
     # Check for an existing file matching the upload_name first
     file_id, status = find_existing_file(client, local_path, expected_filename=upload_name)
@@ -237,14 +240,14 @@ def create_finetuning_job(
     # Build a friendly job name that includes the dataset name and a short hash
     ds_label = dataset_name or os.getenv("DATASET_NAME") or os.path.splitext(os.path.basename(training_file_id))[0]
     ds_label = ds_label.replace(" ", "-") if ds_label else "dataset"
-    job_name_suffix = f"{ds_label}"
+    job_name_suffix = f"raft-{ds_label}"
 
     response = client.fine_tuning.jobs.create(
         training_file=training_file_id,
         validation_file=validation_file_id,
         model=model_name,
         seed=seed,
-#        suffix=job_name_suffix
+        suffix=job_name_suffix
     )
     
     job_id = response.id
