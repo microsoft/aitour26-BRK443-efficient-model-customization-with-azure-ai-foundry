@@ -39,7 +39,7 @@
 	},
 
 	"remoteEnv": {
-		"PATH": "${containerEnv:PATH}:/workspaces/aitour26-ft/src/demo-raft/notebooks/infra/scripts/"
+		"PATH": "${containerEnv:PATH}:/workspaces/aitour26-ft/src/demo-raft/infra/scripts/"
 	}
 
 	// Configure tool-specific properties.
