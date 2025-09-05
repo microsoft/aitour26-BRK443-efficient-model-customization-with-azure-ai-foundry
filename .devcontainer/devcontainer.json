@@ -27,7 +27,8 @@
 			"extensions": [
 				"ms-toolsai.jupyter",
 				"ms-python.python",
-				"marp-team.marp-vscode"
+				"marp-team.marp-vscode",
+				"ms-azuretools.azure-dev"
 			]
 		}
 	},
