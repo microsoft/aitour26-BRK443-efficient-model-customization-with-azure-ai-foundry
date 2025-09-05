@@ -1107,16 +1107,6 @@
       "subcategory": "SPRAY PAINT"
     },
     {
-      "name": "Paint Spray Gun",
-      "sku": "PFSP000031",
-      "price": 89.99,
-      "description": "Professional HVLP paint spray gun for smooth, even coverage on walls, furniture, and automotive surfaces.",
-      "stock_level": 35,
-      "image_path": "paint_&_finishes_spray_paint_paint_spray_gun_20250721_051237.png",
-      "main_category": "PAINT & FINISHES",
-      "subcategory": "SPRAY PAINT"
-    },
-    {
       "name": "Oil-Based Wood Stain",
       "price": 29,
       "description": "Penetrating oil-based stain that enhances wood grain with rich, deep color and natural look.",

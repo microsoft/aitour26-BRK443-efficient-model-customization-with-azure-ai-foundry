@@ -422,3 +422,6 @@ TMP
 .DS_Store
 
 src/demo-raft/.raft_chats.json
+
+# MkDocs build output
+site/
