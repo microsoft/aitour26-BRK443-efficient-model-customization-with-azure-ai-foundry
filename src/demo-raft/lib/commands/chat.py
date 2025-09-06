@@ -19,7 +19,7 @@ from lib.utils.raft_llm import create_langchain_chat_model
 
 
 @click.command()
-@click.option("--env-prefix", default="BASELINE", help="Environment prefix used by create_langchain_chat_model (e.g. BASELINE, FINETUNE, STUDENT)")
+@click.option("--env-prefix", default="BASELINE", help="Environment prefix used by create_langchain_chat_model (e.g. [bold green]BASELINE[/bold green], [bold green]FINETUNE[/bold green])")
 @click.option("--use-search", is_flag=True, help="Enable Azure AI Search retriever to augment user queries with retrieved context")
 @click.option("--search-index", default=None, help="Azure AI Search index name (overrides AZURE_AI_SEARCH_INDEX_NAME env var)")
 @click.option("--search-top-k", default=3, type=int, help="Number of search results to retrieve and include as context")

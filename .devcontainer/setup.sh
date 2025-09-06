@@ -10,3 +10,6 @@ pip install --user -r "${WORKSPACE_DIR}/requirements.txt"
 # Setup RAFT
 export RAFT_DIR="${WORKSPACE_DIR}/src/demo-raft/.gorilla"
 sh "${WORKSPACE_DIR}/src/demo-raft/setup_raft.sh"
+
+# Install markdown2pdf for converting markdown files to PDF
+cargo install markdown2pdf

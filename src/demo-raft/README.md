@@ -1,10 +1,5 @@
 # RAFT Finetuning on<sub><img src="./doc/azure-ai-foundry.png" width="65"></sub>Azure AI Foundry
 
-<p align="center">
-    <img src="./doc/gorilla-distillation.jpeg" width="75%" />
-    <p align="center"><i>Generated using DALL-e 3 on Azure AI</i></p>
-</p>
-
 This repository is a recipe that will walk you through improving RAG system precision using UC Berkeley's RAFT technique on Azure AI Foundry. RAFT (Retrieval Augmented Fine-Tuning) is a method that fine-tunes language models to better understand and utilize retrieved context for more accurate responses.
 
 This recipe uses either [OpenAI GPT-4o](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models?tabs=python-secure#gpt-4o-and-gpt-4-turbo) or [Meta Llama 3.1 405B](https://aka.ms/c/learn-deploy-llama) as a teacher model deployed on [Azure AI](https://aka.ms/c/learn-ai) to generate a synthetic dataset using [UC Berkeley's Gorilla](https://aka.ms/ucb-gorilla) project RAFT method (see [blog post](https://aka.ms/raft-blog)). The synthetically generated dataset will then be used to fine-tune a student model such as OpenAI GPT-4o-mini or Meta Llama 3.1 8B or another supported model to improve its RAG capabilities. Finally, we will deploy the fine-tuned model and evaluate its performance compared to a baseline model.
@@ -42,12 +37,6 @@ The easiest is to open the project in Codespaces (or in VS Code Dev Container lo
 
 [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/raft-distillation-recipe)
 
-### Setup recording
-
-Here's a recording of setting up the repository once in a Dev Container or Codespaces to get an idea of what it looks like before trying yourself:
-
-[![asciicast](https://asciinema.org/a/zxPLMks2CsOx2b7KTBrcmZlcj.svg)](https://asciinema.org/a/zxPLMks2CsOx2b7KTBrcmZlcj)
-
 ### Login using azd
 
 ```
@@ -68,69 +57,78 @@ Configure which **models** you want to use for `teacher`, `student`, `embedding`
 
 > **Note**: Both OpenAI models and Azure Marketplace models are supported.
 
+
 If in Codespaces or Dev Container:
 
-```
-configure_models.py
+```bash
+python raft.py configure
 ```
 
-> **Note**: This command will narrow down models you can select as you progress through based on the regions they're available in so as to make sure the **region** you select at the end of the configuration has all the models available. You'll still have to make sure you have enough quotas in the region you select.
 
-<details>
-<summary>It not, virtual env instructions:</summary>
+# RAFT Demo – AI Tour 2026
 
+This folder contains a demonstration of the RAFT (Retrieval Augmented Fine Tuning) methodology, presented at Microsoft AI Tour 2026.
+
+## What is RAFT?
+
+RAFT is a toolkit for efficient model customization using Azure AI services. It enables:
+- Generation of synthetic datasets
+- Fine-tuning of models
+- Deployment and evaluation of model performance
+
+The RAFT workflow is designed to streamline the process of adapting large language models to specific tasks using retrieval-augmented data and Azure infrastructure.
+
+## RAFT CLI Overview (`raft.py`)
+
+The main entry point for this demo is the `raft.py` CLI. It provides a comprehensive set of commands for running the RAFT workflow:
+
+### Quick Start
+
+Run the complete workflow in one command:
+
+```bash
+python raft.py run
 ```
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-./infra/scripts/configure_models.py
-```
-</details>
 
-### Provision the infrastructure
+### Step-by-Step Workflow
 
+1. `configure` – Configure AI models and deployments for RAFT workflows
+2. `check` – Verify Azure AI endpoints and connectivity
+3. `gen` – Generate synthetic training datasets
+4. `finetune` – Fine-tune models with generated data
+5. `deploy` – Deploy fine-tuned models to Azure OpenAI
+6. `eval` – Evaluate model performance and compare results
+7. `status` – Monitor progress and results
+8. `clean` – Clean up generated datasets and temporary files
+
+### Utility & Interactive Commands
+
+- `chat` – Start an interactive chat using a LangChain model
+
+For more details on each command, run:
+
+```bash
+python raft.py --help
 ```
+
+## RAFT Process Diagram
+
+![RAFT Process](raft-process-eval.png)
+
+
+## Azure Deployment
+
+To provision the required Azure resources for this demo, use the Azure Developer CLI:
+
+```bash
 azd up
 ```
 
-> **Note**: You won't be asked to which region to deploy as the previous `configure_models.py` scripts configured the AZD region based on your model and region selection.
+This command will set up the necessary infrastructure for running the RAFT workflow with Azure AI services.
 
-> **Note**: Both OpenAI models and Azure Marketplace models are supported. The azd infrastructure code will take care of provisioning the infrastructure required to support either of them.
+## License
 
-
-The post provisioning [tests.sh](./infra/azd/hooks/tests.sh) script will run infra integration tests to make sure everything is deployed successfully.
-
-Another post provisioning script, [export_env.sh](./infra/azd/hooks/export_env.sh) will export the environment variables for the provisioned infrastructure to the generated [./.env.state](./.env.state) file.
-
-### Bring you own models
-
-The easiest is to provision the infrastructure using azd but you can of course also bring your own models. Just provide environment variables for endpoints of your models in the [./.env](./.env) manual env file at the root of the project.
-
-<details>
-<summary>Environment variable configuration</summary>
-
-Those environment variables are expected by RAFT cli scripts. They are suffixed by the purpose of the model `COMPLETION`, `EMBEDDING`, `BASELINE`, `JUDGE` followed by either standard **OpenAI** or **Azure OpenAI** variable names.
-
-Choose for each model purpose either one of the following API styles:
-
-<details>
-<summary>OpenAI API</summary>
-
-| Env var name                    | Explanation  |
-| ------------------------------- | -----  |
-| `COMPLETION_OPENAI_API_KEY`     | API Key for the teacher model  |
-| `COMPLETION_OPENAI_BASE_URL`    | Base URL for the teacher model  |
-| `COMPLETION_OPENAI_DEPLOYMENT`  | Deployment name for the teacher model  |
-| `EMBEDDING_OPENAI_API_KEY`      | API Key for the embedding model  |
-| `EMBEDDING_OPENAI_BASE_URL`     | Base URL for the embedding model  |
-| `EMBEDDING_OPENAI_DEPLOYMENT`   | Deployment name for the embedding model  |
-| `BASELINE_OPENAI_API_KEY`       | API Key for the baseline model  |
-| `BASELINE_OPENAI_BASE_URL`      | Base URL for the baseline model  |
-| `BASELINE_OPENAI_DEPLOYMENT`    | Deployment name for the baseline model  |
-| `JUDGE_OPENAI_API_KEY`       | API Key for the judge model  |
-| `JUDGE_OPENAI_BASE_URL`      | Base URL for the judge model  |
-| `JUDGE_OPENAI_DEPLOYMENT`    | Deployment name for the judge model  |
-
+See [LICENSE.md](LICENSE.md).
 </details>
 
 <details>
