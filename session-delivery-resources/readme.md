@@ -32,11 +32,11 @@ Instead, we recommend the "Cooking demo" approach:
 
 | Resources          | Links                            | Description |
 |-------------------|----------------------------------|-------------------|
-| Session Delivery Deck   |  [Deck-TBD](https://aka.ms/) |  The Powerpoint slides for this breakout.|
+| Session Delivery Deck   |  [Deck](https://aka.ms/) |  The Powerpoint slides for this breakout.|
 | Session Delivery Recording (End to end) | [Video-TBD](https://aka.ms/) | Recorded version of talk with tips for delivery.  |
-| Demo Recording - SFT | [Video-TBD](https://aka.ms/) |  |
-| Demo Recording - Distillation | [Video-TBD](https://aka.ms/) |  |
-| Demo Recording - RAFT | [Video-TBD](https://aka.ms/) |  |
+| Recording - Demo 1 | [Video](https://aka.ms/AAxugli) | Supervised Fine Tuning (Demo video) |
+| Recording - Demo 2 | [Video](https://aka.ms/AAxuglh) | Distillation with Fine Tuning (Demo video) |
+| Recording - Demo 3 | [Video-TBD](https://aka.ms/) | RAFT: Retrieval Augmented Fine-Tuning (Demo Video) |
 | Demo Setup Guide |[Demo-TBD](https://aka.ms/)  | Guide to setting up and reproducing demos yourself if necessary. (We provide pre-recorded videos) |
 | | |
 
