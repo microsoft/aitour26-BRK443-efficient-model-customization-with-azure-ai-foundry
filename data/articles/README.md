@@ -2,6 +2,9 @@
 
 Welcome to the **Zava DIY Store Knowledge Blog** - your ultimate resource for DIY projects, painting techniques, and tool expertise! This collection represents the collective wisdom of Zava's expert team, sharing practical knowledge to help DIY enthusiasts tackle their projects with confidence.
 
+![Zava DIY Knowledge Blog](zava-blog.png)
+*The Zava DIY Knowledge Hub - Your go-to resource for expert DIY guidance and techniques*
+
 ## About Zava's Knowledge Blog
 
 Zava has been empowering DIY enthusiasts with high-quality tools and expert guidance. Our blog articles are written by our experienced team members who understand both the art and science of DIY projects. From weekend warriors to professional contractors, we provide the insights you need to get the job done right.
