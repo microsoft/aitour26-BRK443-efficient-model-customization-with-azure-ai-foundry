@@ -71,34 +71,60 @@ azd up
 
 This command will set up the necessary infrastructure for running the RAFT workflow with Azure AI services, enabling Cora to better serve Zava's DIY customers.
 
-### Step 5: Run the complete RAFT workflow
+### Step 5: Run the RAFT workflow
 
-Run the complete RAFT workflow to enhance Cora's abilities:
+The main entry point for this demo is the `raft.py` CLI. It provides a comprehensive set of commands for running the RAFT workflow to improve Cora's capabilities.
+
+You have two options for running the RAFT workflow:
+
+#### Option 1: Run All Steps at Once
+
+The `run` command is a convenient alias that executes the complete RAFT workflow automatically:
 
 ```bash
 python raft.py run
 ```
 
-## RAFT CLI Overview (`raft.py`)
+This command runs all workflow steps in sequence: **check → gen → finetune → deploy → eval**
 
-The main entry point for this demo is the `raft.py` CLI. It provides a comprehensive set of commands for running the RAFT workflow to improve Cora's capabilities.
+#### Option 2: Run Individual Workflow Steps
 
-### Individual RAFT Commands
+Alternatively, you can run each workflow step individually for more control:
 
-Once you've completed the setup steps above, you can also run individual commands as needed:
+```bash
+# Step 1: Verify connectivity
+python raft.py check
 
-1. `configure` – Configure AI models and deployments for RAFT workflows with Zava's requirements
-2. `check` – Verify Azure AI endpoints and connectivity for Zava's infrastructure
-3. `gen` – Generate synthetic training datasets based on Zava's knowledge base blog and DIY expertise articles
-4. `finetune` – Fine-tune models with generated data to improve Cora's DIY knowledge and advice capabilities
-5. `deploy` – Deploy fine-tuned models to Azure OpenAI for Zava's production environment
-6. `eval` – Evaluate model performance and compare results against baseline Cora responses on DIY knowledge queries
-7. `status` – Monitor progress and results of Cora's improvement process
-8. `clean` – Clean up generated datasets and temporary files
+# Step 2: Generate synthetic training data
+python raft.py gen
 
-### Utility & Interactive Commands
+# Step 3: Fine-tune the model
+python raft.py finetune
 
-- `chat` – Start an interactive chat with Cora using a LangChain model to test DIY knowledge assistance
+# Step 4: Deploy the fine-tuned model
+python raft.py deploy
+
+# Step 5: Evaluate model performance
+python raft.py eval
+```
+
+#### All Available Commands
+
+Here's the complete list of available commands:
+
+**Core Workflow Commands:**
+1. `check` – Verify Azure AI endpoints and connectivity for Zava's infrastructure
+2. `gen` – Generate synthetic training datasets based on Zava's knowledge base blog and DIY expertise articles
+3. `finetune` – Fine-tune models with generated data to improve Cora's DIY knowledge and advice capabilities
+4. `deploy` – Deploy fine-tuned models to Azure OpenAI for Zava's production environment
+5. `eval` – Evaluate model performance and compare results against baseline Cora responses on DIY knowledge queries
+6. `run` – Execute all core workflow steps automatically (check → gen → finetune → deploy → eval)
+
+**Configuration & Management Commands:**
+7. `configure` – Configure AI models and deployments for RAFT workflows with Zava's requirements
+
+**Utility & Interactive Commands:**
+8. `chat` – Start an interactive chat with Cora using a LangChain model to test DIY knowledge assistance
 
 For more details on each command, run:
 
