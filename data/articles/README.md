@@ -60,6 +60,9 @@ Our knowledge base contains **15 comprehensive guides** covering:
 
 ### Expert Contributors
 
+![Zava Team](zava-team.png)
+*Meet the Zava DIY experts who create our comprehensive guides*
+
 Our articles are written by Zava's expert team:
 - **Cecil Folk** - Garden furniture specialist
 - **Miguel Garcia** - Chalk paint expert and video tutorial creator
