@@ -2,9 +2,9 @@
 
 This repository is a demo that will walk you through improving **Cora's** RAG chat bot precision using UC Berkeley's RAFT technique on Azure AI Foundry. **Cora** is the AI assistant for **Zava**, an enterprise DIY hardware store that helps customers like Bruno find the right products, enables store managers like Robin to drive customer loyalty and sales, and allows app developers like Kian to build cost-effective solutions.
 
-RAFT (Retrieval Augmented Fine-Tuning) is a method that fine-tunes language models to better understand and utilize retrieved context for more accurate responses. In Zava's case, this means helping Cora provide more precise product recommendations from their extensive DIY hardware catalog, including paint & finishes, tools, and home improvement supplies.
+RAFT (Retrieval Augmented Fine-Tuning) is a method that fine-tunes language models to better understand and utilize retrieved context for more accurate responses. In Zava's case, this means helping Cora provide more accurate DIY advice and recommendations based on their comprehensive knowledge base blog covering topics like paint techniques, tool usage, and home improvement projects.
 
-This demo uses either [OpenAI GPT-4.1](https://azure.microsoft.com/en-us/blog/announcing-the-gpt-4-1-model-series-for-azure-ai-foundry-developers/) as a teacher model deployed on [Azure AI](https://aka.ms/c/learn-ai) to generate a synthetic dataset using [UC Berkeley's Gorilla](https://aka.ms/ucb-gorilla) project RAFT method (see [blog post](https://aka.ms/raft-blog)). The synthetically generated dataset will then be used to fine-tune a student model such as OpenAI GPT-4o-mini to improve Cora's RAG capabilities for the Zava product catalog. Finally, we will deploy the fine-tuned model and evaluate its performance compared to a baseline model.
+This demo uses either [OpenAI GPT-4.1](https://azure.microsoft.com/en-us/blog/announcing-the-gpt-4-1-model-series-for-azure-ai-foundry-developers/) as a teacher model deployed on [Azure AI](https://aka.ms/c/learn-ai) to generate a synthetic dataset using [UC Berkeley's Gorilla](https://aka.ms/ucb-gorilla) project RAFT method (see [blog post](https://aka.ms/raft-blog)). The synthetically generated dataset will then be used to fine-tune a student model such as OpenAI GPT-4o-mini to improve Cora's RAG capabilities for answering questions based on Zava's knowledge base blog. Finally, we will deploy the fine-tuned model and evaluate its performance compared to a baseline model.
 
 > **Note**: While this recipe involves using a larger model to generate training data for a smaller model (a form of distillation), the primary focus is on improving RAG system precision through RAFT fine-tuning rather than general model distillation.
 
@@ -72,11 +72,11 @@ This folder contains a demonstration of the RAFT (Retrieval Augmented Fine Tunin
 ## What is RAFT?
 
 RAFT is a toolkit for efficient model customization using Azure AI services. In the context of Zava's DIY hardware store, it enables:
-- Generation of synthetic datasets based on Zava's product catalog and customer interactions
-- Fine-tuning of models to better understand DIY hardware queries and product relationships  
+- Generation of synthetic datasets based on Zava's knowledge base blog and DIY expertise articles
+- Fine-tuning of models to better understand DIY questions and provide accurate guidance from the knowledge base  
 - Deployment and evaluation of model performance for improved customer service
 
-The RAFT workflow is designed to help Cora, Zava's AI assistant, provide more precise product recommendations and technical advice to customers browsing their extensive catalog of paint & finishes, tools, and home improvement supplies.
+The RAFT workflow is designed to help Cora, Zava's AI assistant, provide more accurate DIY advice and technical guidance to customers by leveraging their extensive knowledge base blog covering paint techniques, tool usage, home improvement projects, and expert DIY tips.
 
 ## RAFT CLI Overview (`raft.py`)
 
@@ -92,18 +92,18 @@ python raft.py run
 
 ### Step-by-Step Workflow
 
-1. `configure` – Configure AI models and deployments for RAFT workflows
-2. `check` – Verify Azure AI endpoints and connectivity
-3. `gen` – Generate synthetic training datasets
-4. `finetune` – Fine-tune models with generated data
-5. `deploy` – Deploy fine-tuned models to Azure OpenAI
-6. `eval` – Evaluate model performance and compare results
-7. `status` – Monitor progress and results
+1. `configure` – Configure AI models and deployments for RAFT workflows with Zava's requirements
+2. `check` – Verify Azure AI endpoints and connectivity for Zava's infrastructure
+3. `gen` – Generate synthetic training datasets based on Zava's knowledge base blog and DIY expertise articles
+4. `finetune` – Fine-tune models with generated data to improve Cora's DIY knowledge and advice capabilities
+5. `deploy` – Deploy fine-tuned models to Azure OpenAI for Zava's production environment
+6. `eval` – Evaluate model performance and compare results against baseline Cora responses on DIY knowledge queries
+7. `status` – Monitor progress and results of Cora's improvement process
 8. `clean` – Clean up generated datasets and temporary files
 
 ### Utility & Interactive Commands
 
-- `chat` – Start an interactive chat using a LangChain model
+- `chat` – Start an interactive chat with Cora using a LangChain model to test DIY knowledge assistance
 
 For more details on each command, run:
 
@@ -148,7 +148,7 @@ While not used, the infrastructure of this project won't cost much but will stil
 
 After you are done working with the project, you can take down the infrastructure with the following command.
 
-**IMPORTANT**: Please be aware that this will **DELETE** everything related to this project including **generated datasets** and **fine-tuned models**.
+**IMPORTANT**: Please be aware that this will **DELETE** everything related to Zava's RAFT knowledge base project including **generated datasets** and **fine-tuned Cora models**.
 
 **IMPORTANT**: Save everything important to you before running this command.
 
