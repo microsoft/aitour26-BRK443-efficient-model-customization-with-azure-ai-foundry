@@ -40,7 +40,7 @@ The easiest is to open the project in Codespaces (or in VS Code Dev Container lo
 ### Step 1: Login using azd
 
 ```bash
-azd auth login --use-device-code
+azd auth login
 ```
 
 ### Step 2: Create azd environment
