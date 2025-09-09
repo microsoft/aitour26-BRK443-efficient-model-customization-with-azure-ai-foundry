@@ -140,8 +140,6 @@ python raft.py --help
 
 While not used, the infrastructure of this project won't cost much but will still cost a bit.
 
-**TODO**: provide costs estimations for dormant infra
-
 ## Configuration files
 
 | File      | Explanation      |
