@@ -29,7 +29,7 @@ This demo uses either [OpenAI GPT-4.1](https://azure.microsoft.com/en-us/blog/an
 
 ## Getting started / Provisioning Azure AI infrastructure
 
-The infrastructure for this project is fully provisioned using the Azure Developer CLI ([AZD](https://aka.ms/c/learn/azd)). AZD simplifies the deployment process by automating the setup of all required Azure resources, ensuring that you can get started with minimal configuration. This approach allows you to focus on the core aspects of RAFT fine-tuning for RAG improvement, while AZD handles the complexities of cloud resource management behind the scenes. By leveraging AZD, the project maintains a consistent and reproducible environment, making it easier to collaborate and scale.
+The infrastructure for Zava's RAFT project is fully provisioned using the Azure Developer CLI ([AZD](https://aka.ms/c/learn/azd)). AZD simplifies the deployment process by automating the setup of all required Azure resources, ensuring that you can get started with minimal configuration. This approach allows you to focus on the core aspects of RAFT fine-tuning for improving Cora's RAG capabilities, while AZD handles the complexities of cloud resource management behind the scenes. By leveraging AZD, the project maintains a consistent and reproducible environment, making it easier to collaborate and scale.
 
 The easiest is to open the project in Codespaces (or in VS Code Dev Container locally). It comes with azd included.
 
@@ -64,20 +64,6 @@ If in Codespaces or Dev Container:
 python raft.py configure
 ```
 
-
-# RAFT Demo – AI Tour 2026
-
-This folder contains a demonstration of the RAFT (Retrieval Augmented Fine Tuning) methodology for improving **Cora**, the AI assistant for **Zava DIY store**, presented at Microsoft AI Tour 2026.
-
-## What is RAFT?
-
-RAFT is a toolkit for efficient model customization using Azure AI services. In the context of Zava's DIY hardware store, it enables:
-- Generation of synthetic datasets based on Zava's knowledge base blog and DIY expertise articles
-- Fine-tuning of models to better understand DIY questions and provide accurate guidance from the knowledge base  
-- Deployment and evaluation of model performance for improved customer service
-
-The RAFT workflow is designed to help Cora, Zava's AI assistant, provide more accurate DIY advice and technical guidance to customers by leveraging their extensive knowledge base blog covering paint techniques, tool usage, home improvement projects, and expert DIY tips.
-
 ## RAFT CLI Overview (`raft.py`)
 
 The main entry point for this demo is the `raft.py` CLI. It provides a comprehensive set of commands for running the RAFT workflow:
@@ -110,11 +96,6 @@ For more details on each command, run:
 ```bash
 python raft.py --help
 ```
-
-## RAFT Process Diagram
-
-![RAFT Process](raft-process-eval.png)
-
 
 ## Azure Deployment
 
