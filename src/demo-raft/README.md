@@ -27,9 +27,9 @@ This demo uses either [OpenAI GPT-4.1](https://azure.microsoft.com/en-us/blog/an
 - [Gorilla project home](https://aka.ms/gorilla-home): Large Language Model Connected with Massive APIs
 - [RAFT Github project](https://aka.ms/raft-repo)
 
-## Getting started / Provisioning Azure AI infrastructure
+## Getting started
 
-The infrastructure for Zava's RAFT project is fully provisioned using the Azure Developer CLI ([AZD](https://aka.ms/c/learn/azd)). AZD simplifies the deployment process by automating the setup of all required Azure resources, ensuring that you can get started with minimal configuration. This approach allows you to focus on the core aspects of RAFT fine-tuning for improving Cora's RAG capabilities, while AZD handles the complexities of cloud resource management behind the scenes. By leveraging AZD, the project maintains a consistent and reproducible environment, making it easier to collaborate and scale.
+The infrastructure for Zava's RAFT project is fully provisioned using the Azure Developer CLI ([AZD](https://aka.ms/c/learn/azd)). AZD simplifies the deployment process by automating the setup of all required Azure resources, ensuring that you can get started with minimal configuration. This approach allows you to focus on the core aspects of RAFT fine-tuning for improving Cora's RAG capabilities, while AZD handles the complexities of cloud resource management behind the scenes.
 
 The easiest is to open the project in Codespaces (or in VS Code Dev Container locally). It comes with azd included.
 
@@ -37,26 +37,23 @@ The easiest is to open the project in Codespaces (or in VS Code Dev Container lo
 
 [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/raft-distillation-recipe)
 
-### Login using azd
+### Step 1: Login using azd
 
-```
+```bash
 azd auth login --use-device-code
 ```
 
-### Create azd environment
+### Step 2: Create azd environment
 
 This creates a new azd environment and is a pre-requisite to configuring models in the next step.
 
-```
+```bash
 azd env new
 ```
 
-### Configure models & region
+### Step 3: Configure models & region
 
 Configure which **models** you want to use for `teacher`, `student`, `embedding` and `baseline` (`baseline` usually equals `student`) as well as which **region** to deploy the project to.
-
-> **Note**: Both OpenAI models and Azure Marketplace models are supported.
-
 
 If in Codespaces or Dev Container:
 
@@ -64,19 +61,31 @@ If in Codespaces or Dev Container:
 python raft.py configure
 ```
 
-## RAFT CLI Overview (`raft.py`)
+### Step 4: Provision Azure infrastructure
 
-The main entry point for this demo is the `raft.py` CLI. It provides a comprehensive set of commands for running the RAFT workflow:
+Provision the required Azure resources for Zava's RAFT demo:
 
-### Quick Start
+```bash
+azd up
+```
 
-Run the complete workflow in one command:
+This command will set up the necessary infrastructure for running the RAFT workflow with Azure AI services, enabling Cora to better serve Zava's DIY customers.
+
+### Step 5: Run the complete RAFT workflow
+
+Run the complete RAFT workflow to enhance Cora's abilities:
 
 ```bash
 python raft.py run
 ```
 
-### Step-by-Step Workflow
+## RAFT CLI Overview (`raft.py`)
+
+The main entry point for this demo is the `raft.py` CLI. It provides a comprehensive set of commands for running the RAFT workflow to improve Cora's capabilities.
+
+### Individual RAFT Commands
+
+Once you've completed the setup steps above, you can also run individual commands as needed:
 
 1. `configure` – Configure AI models and deployments for RAFT workflows with Zava's requirements
 2. `check` – Verify Azure AI endpoints and connectivity for Zava's infrastructure
@@ -96,16 +105,6 @@ For more details on each command, run:
 ```bash
 python raft.py --help
 ```
-
-## Azure Deployment
-
-To provision the required Azure resources for this demo, use the Azure Developer CLI:
-
-```bash
-azd up
-```
-
-This command will set up the necessary infrastructure for running the RAFT workflow with Azure AI services.
 
 ## Run time and costs
 
