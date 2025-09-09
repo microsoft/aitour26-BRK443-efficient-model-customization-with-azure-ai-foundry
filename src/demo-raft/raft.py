@@ -36,7 +36,7 @@ click.rich_click.COMMAND_GROUPS = {
         },
         {
             "name": "Utility Commands", 
-            "commands": ["check", "clean"],
+            "commands": ["check"],
         },
     ]
 }
@@ -93,31 +93,6 @@ cli.add_command(deploy)
 cli.add_command(eval)
 cli.add_command(chat)
 
-
-@click.command()
-def clean():
-    """
-    Clean up generated datasets and temporary files.
-    
-    [dim]This will remove:[/dim]
-    • Generated dataset directories
-    • Temporary processing files
-    • State files and cached data
-    
-    [bold red]Warning:[/bold red] This action cannot be undone!
-    """
-    console.print("🧹 [bold]Cleaning RAFT workspace[/bold]")
-    
-    # TODO: Implement cleanup logic
-    # - Remove dataset directories
-    # - Clean temporary files
-    # - Reset state files
-    
-    console.print("⚠️  Clean command not yet implemented")
-
-
-# Add additional commands
-cli.add_command(clean)
 
 if __name__ == "__main__":
     cli()
