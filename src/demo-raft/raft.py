@@ -36,7 +36,7 @@ click.rich_click.COMMAND_GROUPS = {
         },
         {
             "name": "Utility Commands", 
-            "commands": ["check", "status", "clean"],
+            "commands": ["check"],
         },
     ]
 }
@@ -75,7 +75,6 @@ def cli(verbose):
     [dim]4.[/dim] [cyan]raft finetune[/cyan] - Fine-tune models with generated data
     [dim]5.[/dim] [cyan]raft deploy[/cyan] - Deploy fine-tuned models to Azure OpenAI
     [dim]6.[/dim] [cyan]raft eval[/cyan] - Evaluate model performance and compare results
-    [dim]7.[/dim] [cyan]raft status[/cyan] - Monitor progress and results
     """
     if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -94,53 +93,6 @@ cli.add_command(deploy)
 cli.add_command(eval)
 cli.add_command(chat)
 
-
-@click.command()
-def status():
-    """
-    Show current RAFT project status and configuration.
-    
-    [dim]Displays information about:[/dim]
-    • Environment variables and Azure deployments
-    • Existing datasets and their status
-    • Recent operations and job statuses
-    """
-    console.print("📊 [bold]RAFT Project Status[/bold]")
-    
-    # TODO: Implement status checking logic
-    # - Check environment variables
-    # - Check Azure deployments
-    # - Check existing datasets
-    # - Show recent operations
-    
-    console.print("⚠️  Status command not yet implemented")
-
-
-@click.command()
-def clean():
-    """
-    Clean up generated datasets and temporary files.
-    
-    [dim]This will remove:[/dim]
-    • Generated dataset directories
-    • Temporary processing files
-    • State files and cached data
-    
-    [bold red]Warning:[/bold red] This action cannot be undone!
-    """
-    console.print("🧹 [bold]Cleaning RAFT workspace[/bold]")
-    
-    # TODO: Implement cleanup logic
-    # - Remove dataset directories
-    # - Clean temporary files
-    # - Reset state files
-    
-    console.print("⚠️  Clean command not yet implemented")
-
-
-# Add additional commands
-cli.add_command(status)
-cli.add_command(clean)
 
 if __name__ == "__main__":
     cli()
