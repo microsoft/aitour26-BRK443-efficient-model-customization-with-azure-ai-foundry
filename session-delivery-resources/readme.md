@@ -36,7 +36,7 @@ Instead, we recommend the "Cooking demo" approach:
 | Session Delivery Recording (End to end) | [Video-TBD](https://aka.ms/) | Recorded version of talk with tips for delivery.  |
 | Recording - Demo 1 | [Video](https://aka.ms/AAxugli) | Supervised Fine Tuning (Demo video) |
 | Recording - Demo 2 | [Video](https://aka.ms/AAxuglh) | Distillation with Fine Tuning (Demo video) |
-| Recording - Demo 3 | [Video-TBD](https://aka.ms/) | RAFT: Retrieval Augmented Fine-Tuning (Demo Video) |
+| Recording - Demo 3 | [Video](https://aka.ms/AAxuglk) | RAFT: Retrieval Augmented Fine-Tuning (Demo Video) |
 | Demo Setup Guide |[Demo-TBD](https://aka.ms/)  | Guide to setting up and reproducing demos yourself if necessary. (We provide pre-recorded videos) |
 | | |
 
