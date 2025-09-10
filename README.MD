@@ -62,6 +62,13 @@ By the end of this session, you should be able to:
 
 ---
 
+### 🌐 Multi-Language Support
+
+Additional Languages Coming Soon
+
+
+---
+
 ## Content Owners
 
 <table>
