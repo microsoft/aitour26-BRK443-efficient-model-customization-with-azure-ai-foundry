@@ -28,16 +28,17 @@ Instead, we recommend the "Cooking demo" approach:
 1. Switch to staged demo only to show final outcome or answer questions.
 
 
-## 3. Your Session Resources - `TO-FIX`  🚧
+## 3. Your Session Resources 
 
 | Resources          | Links                            | Description |
 |-------------------|----------------------------------|-------------------|
-| Session Delivery Deck   |  [Deck](https://aka.ms/) |  The Powerpoint slides for this breakout.|
+| Session Delivery Deck   |  [Deck](https://aka.ms/AAxww64) |  The Powerpoint slides for this breakout.|
 | Session Delivery Recording (End to end) | [Video-TBD](https://aka.ms/) | Recorded version of talk with tips for delivery.  |
 | Recording - Demo 1 | [Video](https://aka.ms/AAxugli) | Supervised Fine Tuning (Demo video) |
 | Recording - Demo 2 | [Video](https://aka.ms/AAxuglh) | Distillation with Fine Tuning (Demo video) |
 | Recording - Demo 3 | [Video](https://aka.ms/AAxuglk) | RAFT: Retrieval Augmented Fine-Tuning (Demo Video) |
-| Demo Setup Guide |[Demo-TBD](https://aka.ms/)  | Guide to setting up and reproducing demos yourself if necessary. (We provide pre-recorded videos) |
+| Demo 1 Setup Guide |[Demo](./../src/demo-distillation/README.md)  | Guide to setting up and reproducing demos yourself if necessary. (We provide pre-recorded videos) |
+| Demo 2 Setup Guide |[Demo](./../src/demo-raft/README.md)  | Guide to setting up and reproducing demos yourself if necessary. (We provide pre-recorded videos) |
 | | |
 
 
@@ -71,6 +72,8 @@ The table below gives a slighly more detailed breakdown - this is a recommended 
 
 You will not have time for Q&A during the session given the content - instead, we recommend you ask listeners to come speak to you after the session. This also gives you time to show relevant outcomes or answer questions _using the staged version of the demo on your laptop_ for more realistic interactions.
 
-## 5. Session Demo (Setup) - `TO-FIX`  🚧
+## 5. Session Demo (Setup) 
 
-_TBD_ - provide guidance on how to setup demos, or point to where this is described.
+Follow the instructions in the following docs to set-up your demo environment:
+1. [Distillation demo set-up guide](./../src/demo-distillation/README.md)
+2. [RAFT demo set-up guide](./../src/demo-raft/README.md)
