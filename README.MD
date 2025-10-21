@@ -78,6 +78,11 @@ Additional Languages Coming Soon
         <sub><b>Nitya Narasimhan</b></sub></a><br />
             <a href="https://github.com/nitya" title="talk">📢</a> 
     </td>
+    <td align="center"><a href="https://github.com/bethanyjep">
+        <img src="https://github.com/bethanyjep.png" width="100px;" alt="Bethany Jepchumba"/><br />
+        <sub><b>Bethany Jepchumba</b></sub></a><br />
+            <a href="https://github.com/bethanyjep" title="talk">📢</a> 
+    </td>
     <td align="center"><a href="https://github.com/cedricvidal">
         <img src="https://github.com/cedricvidal.png" width="100px;" alt="Cedric Vidal"/><br />
         <sub><b>Cedric Vidal</b></sub></a><br />
