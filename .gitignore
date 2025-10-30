@@ -426,3 +426,6 @@ src/demo-raft/.raft_chats.json
 # MkDocs build output
 site/
 .resize-hash
+
+# ForBeginners repository (cloned by setup script)
+infra/ForBeginners/

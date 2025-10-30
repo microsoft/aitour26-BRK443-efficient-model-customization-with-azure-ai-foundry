@@ -27,4 +27,4 @@ azure-mgmt-cognitiveservices   # For model deployment
 ## ..... Demo 3: RAFT
 ## Installs dependencies for the RAFT demo
 -r src/demo-raft/requirements.txt
--r data/articles/requirements.txt
+-r src/demo-raft/data/articles/requirements.txt
