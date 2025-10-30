@@ -1,0 +1,110 @@
+[
+  {
+    "name": "model-router",
+    "model": {
+      "format": "OpenAI",
+      "name": "model-router",
+      "version": "2025-05-19"
+    },
+    "sku": {
+      "name": "GlobalStandard",
+      "capacity": 20
+    }
+  },
+  {
+    "name": "gpt-4.1",
+    "model": {
+      "format": "OpenAI",
+      "name": "gpt-4.1",
+      "version": "2025-04-14"
+    },
+    "sku": {
+      "name": "GlobalStandard",
+      "capacity": 20
+    }
+  },
+  {
+    "name": "gpt-4o",
+    "model": {
+      "format": "OpenAI",
+      "name": "gpt-4o",
+      "version": "2024-11-20"
+    },
+    "sku": {
+      "name": "GlobalStandard",
+      "capacity": 20
+    }
+  },
+  {
+    "name": "gpt-4o-mini",
+    "model": {
+      "format": "OpenAI",
+      "name": "gpt-4o-mini",
+      "version": "2024-07-18"
+    },
+    "sku": {
+      "name": "GlobalStandard",
+      "capacity": 20
+    }
+  },
+  {
+    "name": "gpt-4.1-mini",
+    "model": {
+      "format": "OpenAI",
+      "name": "gpt-4.1-mini",
+      "version": "2025-04-14"
+    },
+    "sku": {
+      "name": "GlobalStandard",
+      "capacity": 20
+    }
+  },
+  {
+    "name": "gpt-4.1-nano",
+    "model": {
+      "format": "OpenAI",
+      "name": "gpt-4.1-nano",
+      "version": "2025-04-14"
+    },
+    "sku": {
+      "name": "GlobalStandard",
+      "capacity": 20
+    }
+  },
+  {
+    "name": "o3-mini",
+    "model": {
+      "format": "OpenAI",
+      "name": "o3-mini",
+      "version": "2025-01-31"
+    },
+    "sku": {
+      "name": "GlobalStandard",
+      "capacity": 20
+    }
+  },
+  {
+    "name": "o4-mini",
+    "model": {
+      "format": "OpenAI",
+      "name": "o4-mini",
+      "version": "2025-04-16"
+    },
+    "sku": {
+      "name": "GlobalStandard",
+      "capacity": 20
+    }
+  },
+  {
+    "name": "text-embedding-3-large",
+    "model": {
+      "format": "OpenAI",
+      "name": "text-embedding-3-large",
+      "version": "1"
+    },
+    "sku": {
+      "name": "Standard",
+      "capacity": 20
+    }
+  }
+]
