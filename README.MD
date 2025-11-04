@@ -8,8 +8,8 @@
 
 ## 🔥BRK443: Efficient Model Customization with Azure AI Foundry
 
-[![Microsoft Azure AI Foundry Discord](https://dcbadge.limes.pink/api/server/Pwpvf3TWaw)](https://discord.gg/Pwpvf3TWaw)
-[![Azure AI Foundry Developer Forum](https://img.shields.io/badge/GitHub-Azure_AI_Foundry_Developer_Forum-blue?style=for-the-badge&logo=github&color=adff2f&logoColor=fff)](https://aka.ms/foundry/forum)
+[![Microsoft Azure AI Foundry Discord](https://dcbadge.limes.pink/api/server/Pwpvf3TWaw)](https://aka.ms/AIFoundryDiscord-AITour26)
+[![Azure AI Foundry Developer Forum](https://img.shields.io/badge/GitHub-Azure_AI_Foundry_Developer_Forum-blue?style=for-the-badge&logo=github&color=adff2f&logoColor=fff)](https://aka.ms/AIFoundryForum-AITour26)
 
 ### Session Description
 
@@ -57,7 +57,7 @@ By the end of this session, you should be able to:
 | Resources          | Links                             | Description        |
 |:-------------------|:----------------------------------|:-------------------|
 | AI Tour 2026 Resource Center | https://aka.ms/AITour26-Resource-center | Links to all repos for AI Tour 26 Sessions |
-| Azure AI Foundry Community Discord | [![Microsoft Azure AI Foundry Discord](https://dcbadge.limes.pink/api/server/Pwpvf3TWaw)](https://discord.gg/Pwpvf3TWaw)| Connect with the Azure AI Foundry Community! |
+| Azure AI Foundry Community Discord | [![Microsoft Azure AI Foundry Discord](https://dcbadge.limes.pink/api/server/Pwpvf3TWaw)](https://aka.ms/AIFoundryDiscord-AITour26)| Connect with the Azure AI Foundry Community! |
 | Learn at AI Tour | https://aka.ms/LearnAtAITour | Continue learning on Microsoft Learn |
 
 ---
